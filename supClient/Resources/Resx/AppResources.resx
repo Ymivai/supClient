@@ -13,7 +13,13 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="App.Title" xml:space="preserve">
-    <value>SupClient</value>
+    <value>SuP</value>
+  </data>
+  <data name="Title.AppShortName" xml:space="preserve">
+    <value>SuP</value>
+  </data>
+  <data name="Title.AppFullName" xml:space="preserve">
+    <value>SPORT URBAN POINT</value>
   </data>
   <data name="Language.Russian" xml:space="preserve">
     <value>Русский</value>
@@ -116,6 +122,9 @@
   </data>
   <data name="Label.Language" xml:space="preserve">
     <value>Язык</value>
+  </data>
+  <data name="Label.Loading" xml:space="preserve">
+    <value>Загрузка...</value>
   </data>
   <data name="Format.DurationHoursMinutes" xml:space="preserve">
     <value>Длительность: {0} ч {1} мин</value>

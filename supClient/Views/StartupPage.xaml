@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="supClient.Views.StartupPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:localization="clr-namespace:supClient.Localization"
+    BackgroundColor="#062F33"
+    NavigationPage.HasNavigationBar="False">
+
+    <Grid>
+        <Image
+            x:Name="BackgroundImage"
+            Aspect="AspectFill"
+            Opacity="0.32"
+            Source="startup_background.png" />
+
+        <BoxView
+            x:Name="WaveGlow"
+            HeightRequest="260"
+            Opacity="0.35"
+            VerticalOptions="End">
+            <BoxView.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Offset="0" Color="#00D6C9" />
+                    <GradientStop Offset="0.52" Color="#1BA7A9" />
+                    <GradientStop Offset="1" Color="#062F33" />
+                </LinearGradientBrush>
+            </BoxView.Background>
+        </BoxView>
+
+        <VerticalStackLayout
+            Padding="32"
+            HorizontalOptions="Center"
+            Spacing="18"
+            VerticalOptions="Center">
+            <Border
+                Padding="22,18"
+                BackgroundColor="#183FFFFFFF"
+                Stroke="#66D7FFF4"
+                StrokeThickness="1">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="8" />
+                </Border.StrokeShape>
+                <VerticalStackLayout Spacing="4">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="54"
+                        HorizontalTextAlignment="Center"
+                        Text="{localization:Localization Title.AppShortName}"
+                        TextColor="White" />
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="13"
+                        HorizontalTextAlignment="Center"
+                        Text="{localization:Localization Title.AppFullName}"
+                        TextColor="#D7FFF4" />
+                </VerticalStackLayout>
+            </Border>
+
+            <ActivityIndicator
+                Color="#D7FFF4"
+                HeightRequest="42"
+                IsRunning="True"
+                WidthRequest="42" />
+
+            <Label
+                FontSize="13"
+                HorizontalTextAlignment="Center"
+                Text="{localization:Localization Label.Loading}"
+                TextColor="#D7FFF4" />
+        </VerticalStackLayout>
+    </Grid>
+</ContentPage>
