@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="App.Title" xml:space="preserve">
+    <value>SupClient</value>
+  </data>
+  <data name="Language.Russian" xml:space="preserve">
+    <value>Русский</value>
+  </data>
+  <data name="Language.Ukrainian" xml:space="preserve">
+    <value>Украинский</value>
+  </data>
+  <data name="Title.Bookings" xml:space="preserve">
+    <value>Брони</value>
+  </data>
+  <data name="Title.Settings" xml:space="preserve">
+    <value>Настройки</value>
+  </data>
+  <data name="Title.NewBooking" xml:space="preserve">
+    <value>Новая бронь</value>
+  </data>
+  <data name="Title.EditBooking" xml:space="preserve">
+    <value>Редактировать бронь</value>
+  </data>
+  <data name="Label.Date" xml:space="preserve">
+    <value>Дата</value>
+  </data>
+  <data name="Label.Start" xml:space="preserve">
+    <value>Начало</value>
+  </data>
+  <data name="Label.End" xml:space="preserve">
+    <value>Окончание</value>
+  </data>
+  <data name="Label.SupCount" xml:space="preserve">
+    <value>Количество SUP</value>
+  </data>
+  <data name="Label.SelectedBoards" xml:space="preserve">
+    <value>Выбрано: {0}</value>
+  </data>
+  <data name="Label.Client" xml:space="preserve">
+    <value>Клиент</value>
+  </data>
+  <data name="Label.Phone" xml:space="preserve">
+    <value>Телефон</value>
+  </data>
+  <data name="Label.PaymentMethod" xml:space="preserve">
+    <value>Способ оплаты</value>
+  </data>
+  <data name="Label.Comment" xml:space="preserve">
+    <value>Комментарий</value>
+  </data>
+  <data name="Placeholder.Client" xml:space="preserve">
+    <value>Имя или Telegram</value>
+  </data>
+  <data name="Placeholder.Optional" xml:space="preserve">
+    <value>Необязательно</value>
+  </data>
+  <data name="Button.Save" xml:space="preserve">
+    <value>Сохранить</value>
+  </data>
+  <data name="Button.DeleteBooking" xml:space="preserve">
+    <value>Удалить бронь</value>
+  </data>
+  <data name="Button.Cancel" xml:space="preserve">
+    <value>Отмена</value>
+  </data>
+  <data name="Button.Today" xml:space="preserve">
+    <value>Сегодня</value>
+  </data>
+  <data name="Button.AddBooking" xml:space="preserve">
+    <value>Добавить бронь</value>
+  </data>
+  <data name="Button.DeleteAllBookings" xml:space="preserve">
+    <value>Удалить все брони</value>
+  </data>
+  <data name="Label.EmptyBookings" xml:space="preserve">
+    <value>На выбранную дату броней нет</value>
+  </data>
+  <data name="Label.TotalBoardsSetting" xml:space="preserve">
+    <value>Количество SUP-досок</value>
+  </data>
+  <data name="Label.TotalBoards" xml:space="preserve">
+    <value>Всего досок: {0}</value>
+  </data>
+  <data name="Label.DefaultBookingDuration" xml:space="preserve">
+    <value>Длительность брони по умолчанию</value>
+  </data>
+  <data name="Label.Hours" xml:space="preserve">
+    <value>Часов: {0}</value>
+  </data>
+  <data name="Label.WeekdayHourlyRate" xml:space="preserve">
+    <value>Рабочий день, грн/час</value>
+  </data>
+  <data name="Label.WeekendHourlyRate" xml:space="preserve">
+    <value>Выходной, грн/час</value>
+  </data>
+  <data name="Label.LocalData" xml:space="preserve">
+    <value>Локальные данные</value>
+  </data>
+  <data name="Label.Language" xml:space="preserve">
+    <value>Язык</value>
+  </data>
+  <data name="Format.DurationHoursMinutes" xml:space="preserve">
+    <value>Длительность: {0} ч {1} мин</value>
+  </data>
+  <data name="Format.DurationMinutes" xml:space="preserve">
+    <value>Длительность: {0} мин</value>
+  </data>
+  <data name="Format.AvailableBoards" xml:space="preserve">
+    <value>Свободно: {0}</value>
+  </data>
+  <data name="Format.CardRevenue" xml:space="preserve">
+    <value>Карт: {0} грн</value>
+  </data>
+  <data name="Format.CashRevenue" xml:space="preserve">
+    <value>Готівка: {0} грн</value>
+  </data>
+  <data name="Format.TotalRevenue" xml:space="preserve">
+    <value>Всього: {0} грн</value>
+  </data>
+  <data name="Format.AdminRevenue" xml:space="preserve">
+    <value>Адміну: {0} грн</value>
+  </data>
+  <data name="Format.BookingRevenue" xml:space="preserve">
+    <value>{0} грн</value>
+  </data>
+  <data name="Format.Boards" xml:space="preserve">
+    <value>{0} SUP</value>
+  </data>
+  <data name="Format.NextAvailable" xml:space="preserve">
+    <value>Ещё {0} SUP освободятся в {1:HH:mm}.</value>
+  </data>
+  <data name="Dialog.ErrorTitle" xml:space="preserve">
+    <value>Ошибка</value>
+  </data>
+  <data name="Dialog.SaveBlockedTitle" xml:space="preserve">
+    <value>Невозможно сохранить</value>
+  </data>
+  <data name="Dialog.SavedTitle" xml:space="preserve">
+    <value>Сохранено</value>
+  </data>
+  <data name="Dialog.DoneTitle" xml:space="preserve">
+    <value>Готово</value>
+  </data>
+  <data name="Dialog.Ok" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="Dialog.Delete" xml:space="preserve">
+    <value>Удалить</value>
+  </data>
+  <data name="Dialog.BookingNotFound" xml:space="preserve">
+    <value>Бронь не найдена.</value>
+  </data>
+  <data name="Dialog.SaveBookingFailed" xml:space="preserve">
+    <value>Не удалось сохранить бронирование.</value>
+  </data>
+  <data name="Dialog.DeleteBookingTitle" xml:space="preserve">
+    <value>Удалить бронь?</value>
+  </data>
+  <data name="Dialog.DeleteBookingMessage" xml:space="preserve">
+    <value>Это действие удалит выбранную бронь без возможности отмены.</value>
+  </data>
+  <data name="Dialog.DeleteBookingFailed" xml:space="preserve">
+    <value>Не удалось удалить бронирование.</value>
+  </data>
+  <data name="Dialog.SettingsSaved" xml:space="preserve">
+    <value>Настройки успешно сохранены.</value>
+  </data>
+  <data name="Dialog.SaveSettingsFailed" xml:space="preserve">
+    <value>Не удалось сохранить настройки.</value>
+  </data>
+  <data name="Dialog.DeleteAllBookingsTitle" xml:space="preserve">
+    <value>Удалить все брони?</value>
+  </data>
+  <data name="Dialog.DeleteAllBookingsMessage" xml:space="preserve">
+    <value>Это действие полностью удалит все локально сохраненные бронирования. Настройки останутся без изменений.</value>
+  </data>
+  <data name="Dialog.AllBookingsDeleted" xml:space="preserve">
+    <value>Все локальные бронирования удалены.</value>
+  </data>
+  <data name="Dialog.DeleteAllBookingsFailed" xml:space="preserve">
+    <value>Не удалось удалить локальные бронирования.</value>
+  </data>
+  <data name="Validation.EndAfterStart" xml:space="preserve">
+    <value>Время окончания должно быть позже времени начала</value>
+  </data>
+  <data name="Validation.StartTimeRequired" xml:space="preserve">
+    <value>Время начала брони обязательно.</value>
+  </data>
+  <data name="Validation.DurationRequired" xml:space="preserve">
+    <value>Длительность брони должна быть больше нуля.</value>
+  </data>
+  <data name="Validation.BoardsRequired" xml:space="preserve">
+    <value>Нужно выбрать хотя бы одну SUP-доску.</value>
+  </data>
+  <data name="Validation.CustomerNameRequired" xml:space="preserve">
+    <value>Имя клиента обязательно.</value>
+  </data>
+  <data name="Availability.TotalBoardsInvalid" xml:space="preserve">
+    <value>Количество SUP-досок в настройках должно быть больше нуля.</value>
+  </data>
+  <data name="Availability.BoardsRequired" xml:space="preserve">
+    <value>Нужно выбрать хотя бы одну SUP-доску.</value>
+  </data>
+  <data name="Availability.DurationRequired" xml:space="preserve">
+    <value>Длительность брони должна быть больше нуля.</value>
+  </data>
+  <data name="Availability.NotEnoughBoards" xml:space="preserve">
+    <value>Недостаточно свободных SUP.</value>
+  </data>
+  <data name="Availability.TotalBoards" xml:space="preserve">
+    <value>Всего досок: {0}</value>
+  </data>
+  <data name="Availability.RequestedBoards" xml:space="preserve">
+    <value>Запрошено: {0}</value>
+  </data>
+  <data name="Availability.OccupiedBoards" xml:space="preserve">
+    <value>Занято: {0}</value>
+  </data>
+  <data name="Availability.AvailableBoards" xml:space="preserve">
+    <value>Свободно: {0}</value>
+  </data>
+  <data name="Payment.Unpaid" xml:space="preserve">
+    <value>Не оплачено</value>
+  </data>
+  <data name="Payment.Cash" xml:space="preserve">
+    <value>Наличные</value>
+  </data>
+  <data name="Payment.Card" xml:space="preserve">
+    <value>Карта</value>
+  </data>
+  <data name="Payment.Transfer" xml:space="preserve">
+    <value>Перевод</value>
+  </data>
+  <data name="Payment.Other" xml:space="preserve">
+    <value>Другое</value>
+  </data>
+  <data name="Booking.ClientNotSpecified" xml:space="preserve">
+    <value>Клиент не указан</value>
+  </data>
+</root>

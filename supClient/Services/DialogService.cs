@@ -1,9 +1,15 @@
+using supClient.Localization;
+
 namespace supClient.Services;
 
 public class DialogService : IDialogService
 {
-    public Task DisplayAlertAsync(string title, string message, string cancel = "OK")
+    public Task DisplayAlertAsync(string title, string message, string cancel = "")
     {
+        cancel = string.IsNullOrWhiteSpace(cancel)
+            ? LocalizedResources.Instance["Dialog.Ok"]
+            : cancel;
+
         var page = Application.Current?.Windows.FirstOrDefault()?.Page;
         if (page == null)
             return Task.CompletedTask;

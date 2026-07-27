@@ -3,8 +3,9 @@
     x:Class="supClient.Views.SettingsPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:localization="clr-namespace:supClient.Localization"
     xmlns:vm="clr-namespace:supClient.ViewModels"
-    Title="Настройки"
+    Title="{localization:Localization Title.Settings}"
     x:DataType="vm:SettingsPageViewModel">
 
     <ScrollView>
@@ -14,7 +15,7 @@
             <VerticalStackLayout Spacing="8">
                 <Label
                     FontAttributes="Bold"
-                    Text="Количество SUP-досок" />
+                    Text="{localization:Localization Label.TotalBoardsSetting}" />
                 <Stepper
                     Increment="1"
                     Maximum="100"
@@ -22,13 +23,13 @@
                     Value="{Binding TotalBoards}" />
                 <Label
                     HorizontalOptions="Center"
-                    Text="{Binding TotalBoards, StringFormat='Всего досок: {0}'}" />
+                    Text="{Binding TotalBoards, StringFormat={localization:Localization Label.TotalBoards}}" />
             </VerticalStackLayout>
 
             <VerticalStackLayout Spacing="8">
                 <Label
                     FontAttributes="Bold"
-                    Text="Длительность брони по умолчанию" />
+                    Text="{localization:Localization Label.DefaultBookingDuration}" />
                 <Stepper
                     Increment="1"
                     Maximum="12"
@@ -36,7 +37,7 @@
                     Value="{Binding DefaultBookingDurationHours}" />
                 <Label
                     HorizontalOptions="Center"
-                    Text="{Binding DefaultBookingDurationHours, StringFormat='Часов: {0}'}" />
+                    Text="{Binding DefaultBookingDurationHours, StringFormat={localization:Localization Label.Hours}}" />
             </VerticalStackLayout>
 
             <Grid
@@ -45,7 +46,7 @@
                 <VerticalStackLayout Spacing="8">
                     <Label
                         FontAttributes="Bold"
-                        Text="Рабочий день, грн/час" />
+                        Text="{localization:Localization Label.WeekdayHourlyRate}" />
                     <Entry
                         Keyboard="Numeric"
                         Text="{Binding WeekdayHourlyRate}" />
@@ -56,16 +57,25 @@
                     Spacing="8">
                     <Label
                         FontAttributes="Bold"
-                        Text="Выходной, грн/час" />
+                        Text="{localization:Localization Label.WeekendHourlyRate}" />
                     <Entry
                         Keyboard="Numeric"
                         Text="{Binding WeekendHourlyRate}" />
                 </VerticalStackLayout>
             </Grid>
 
+            <VerticalStackLayout Spacing="8">
+                <Label
+                    FontAttributes="Bold"
+                    Text="{localization:Localization Label.Language}" />
+                <Picker
+                    ItemsSource="{Binding LanguageNames}"
+                    SelectedIndex="{Binding SelectedLanguageIndex}" />
+            </VerticalStackLayout>
+
             <Button
                 Command="{Binding SaveCommand}"
-                Text="Сохранить" />
+                Text="{localization:Localization Button.Save}" />
 
             <BoxView
                 HeightRequest="1"
@@ -74,11 +84,11 @@
             <VerticalStackLayout Spacing="8">
                 <Label
                     FontAttributes="Bold"
-                    Text="Локальные данные" />
+                    Text="{localization:Localization Label.LocalData}" />
                 <Button
                     BackgroundColor="#B3261E"
                     Command="{Binding DeleteAllBookingsCommand}"
-                    Text="Удалить все брони"
+                    Text="{localization:Localization Button.DeleteAllBookings}"
                     TextColor="White" />
             </VerticalStackLayout>
         </VerticalStackLayout>

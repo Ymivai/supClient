@@ -1,3 +1,4 @@
+using supClient.Localization;
 using supClient.Models;
 
 namespace supClient.Services;
@@ -32,18 +33,19 @@ public class AvailabilityCheckResult
 
         var lines = new List<string>
         {
-            "Недостаточно свободных SUP.",
-            $"Всего досок: {TotalBoards}",
-            $"Запрошено: {RequestedBoards}",
-            $"Занято: {OccupiedBoards}",
-            $"Свободно: {AvailableBoards}"
+            Text("Availability.NotEnoughBoards"),
+            string.Format(Text("Availability.TotalBoards"), TotalBoards),
+            string.Format(Text("Availability.RequestedBoards"), RequestedBoards),
+            string.Format(Text("Availability.OccupiedBoards"), OccupiedBoards),
+            string.Format(Text("Availability.AvailableBoards"), AvailableBoards)
         };
 
         if (NextAvailableStart.HasValue)
-        {
-            lines.Add($"Ещё {MissingBoards} SUP освободятся в {NextAvailableStart.Value:HH:mm}.");
-        }
+            lines.Add(string.Format(Text("Format.NextAvailable"), MissingBoards, NextAvailableStart.Value));
 
         return string.Join(Environment.NewLine, lines);
     }
+
+    static string Text(string key)
+        => LocalizedResources.Instance[key];
 }

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:localization="clr-namespace:supClient.Localization"
              xmlns:vm="clr-namespace:supClient.ViewModels"
              x:Class="supClient.Views.AddBookingPage"
              x:DataType="vm:AddBookingPageViewModel"
@@ -9,18 +10,18 @@
     <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="20">
             <VerticalStackLayout Spacing="8">
-                <Label Text="Дата" FontAttributes="Bold" />
+                <Label Text="{localization:Localization Label.Date}" FontAttributes="Bold" />
                 <DatePicker Date="{Binding BookingDate}" />
             </VerticalStackLayout>
 
             <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
                 <VerticalStackLayout Grid.Column="0" Spacing="8">
-                    <Label Text="Начало" FontAttributes="Bold" />
+                    <Label Text="{localization:Localization Label.Start}" FontAttributes="Bold" />
                     <TimePicker Time="{Binding StartTime}" />
                 </VerticalStackLayout>
 
                 <VerticalStackLayout Grid.Column="1" Spacing="8">
-                    <Label Text="Окончание" FontAttributes="Bold" />
+                    <Label Text="{localization:Localization Label.End}" FontAttributes="Bold" />
                     <TimePicker Time="{Binding EndTime}" />
                 </VerticalStackLayout>
             </Grid>
@@ -30,51 +31,51 @@
                    HorizontalOptions="Center" />
 
             <VerticalStackLayout Spacing="8">
-                <Label Text="Количество SUP" FontAttributes="Bold" />
+                <Label Text="{localization:Localization Label.SupCount}" FontAttributes="Bold" />
                 <Stepper Minimum="1"
                          Maximum="20"
                          Value="{Binding BoardsCount}"
                          Increment="1" />
-                <Label Text="{Binding BoardsCount, StringFormat='Выбрано: {0}'}"
+                <Label Text="{Binding BoardsCount, StringFormat={localization:Localization Label.SelectedBoards}}"
                        HorizontalOptions="Center" />
             </VerticalStackLayout>
 
             <VerticalStackLayout Spacing="8">
-                <Label Text="Клиент" FontAttributes="Bold" />
-                <Entry Placeholder="Имя или Telegram"
+                <Label Text="{localization:Localization Label.Client}" FontAttributes="Bold" />
+                <Entry Placeholder="{localization:Localization Placeholder.Client}"
                        Text="{Binding ClientName}" />
             </VerticalStackLayout>
 
             <VerticalStackLayout Spacing="8">
-                <Label Text="Телефон" FontAttributes="Bold" />
+                <Label Text="{localization:Localization Label.Phone}" FontAttributes="Bold" />
                 <Entry Keyboard="Telephone"
-                       Placeholder="Необязательно"
+                       Placeholder="{localization:Localization Placeholder.Optional}"
                        Text="{Binding PhoneNumber}" />
             </VerticalStackLayout>
 
             <VerticalStackLayout Spacing="8">
-                <Label Text="Способ оплаты" FontAttributes="Bold" />
+                <Label Text="{localization:Localization Label.PaymentMethod}" FontAttributes="Bold" />
                 <Picker ItemsSource="{Binding PaymentMethodNames}"
                         SelectedIndex="{Binding SelectedPaymentMethodIndex}" />
             </VerticalStackLayout>
 
             <VerticalStackLayout Spacing="8">
-                <Label Text="Комментарий" FontAttributes="Bold" />
+                <Label Text="{localization:Localization Label.Comment}" FontAttributes="Bold" />
                 <Editor AutoSize="TextChanges"
                         HeightRequest="90"
-                        Placeholder="Необязательно"
+                        Placeholder="{localization:Localization Placeholder.Optional}"
                         Text="{Binding Comment}" />
             </VerticalStackLayout>
 
             <VerticalStackLayout Spacing="12">
-                <Button Text="Сохранить"
+                <Button Text="{localization:Localization Button.Save}"
                         Command="{Binding SaveCommand}" />
-                <Button Text="Удалить бронь"
+                <Button Text="{localization:Localization Button.DeleteBooking}"
                         Command="{Binding DeleteCommand}"
                         IsVisible="{Binding IsEditing}"
                         BackgroundColor="#B3261E"
                         TextColor="White" />
-                <Button Text="Отмена"
+                <Button Text="{localization:Localization Button.Cancel}"
                         Command="{Binding CancelCommand}"
                         BackgroundColor="{StaticResource Gray300}"
                         TextColor="{StaticResource Gray900}" />

@@ -1,3 +1,4 @@
+using supClient.Localization;
 using supClient.Models;
 using supClient.Storage;
 
@@ -26,13 +27,13 @@ public class BookingAvailabilityService : IBookingAvailabilityService
         var bookingDuration = duration ?? settings.DefaultBookingDuration;
 
         if (settings.TotalBoards <= 0)
-            return CreateUnavailableResult(settings.TotalBoards, boardsCount, "Количество SUP-досок в настройках должно быть больше нуля.");
+            return CreateUnavailableResult(settings.TotalBoards, boardsCount, Text("Availability.TotalBoardsInvalid"));
 
         if (boardsCount <= 0)
-            return CreateUnavailableResult(settings.TotalBoards, boardsCount, "Нужно выбрать хотя бы одну SUP-доску.");
+            return CreateUnavailableResult(settings.TotalBoards, boardsCount, Text("Availability.BoardsRequired"));
 
         if (bookingDuration <= TimeSpan.Zero)
-            return CreateUnavailableResult(settings.TotalBoards, boardsCount, "Длительность брони должна быть больше нуля.");
+            return CreateUnavailableResult(settings.TotalBoards, boardsCount, Text("Availability.DurationRequired"));
 
         var dayBookings = await _bookingRepository.GetBookingsByDateAsync(startTime.Date);
         var relevantBookings = FilterBookings(dayBookings, excludeBookingId);
@@ -191,4 +192,7 @@ public class BookingAvailabilityService : IBookingAvailabilityService
             OccupiedBoards = 0,
             Message = message
         };
+
+    static string Text(string key)
+        => LocalizedResources.Instance[key];
 }

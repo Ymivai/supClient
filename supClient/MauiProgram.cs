@@ -1,5 +1,6 @@
-﻿using CommunityToolkit.Maui;
+using CommunityToolkit.Maui;
 using Microsoft.Extensions.Logging;
+using supClient.Localization;
 using supClient.Services;
 using supClient.Storage;
 using supClient.ViewModels;
@@ -32,6 +33,7 @@ public static class MauiProgram
 
     static void RegisterServices(IServiceCollection services)
     {
+        services.AddSingleton<LanguagesManager>();
         services.AddSingleton<IBookingRepository, JsonBookingRepository>();
         services.AddSingleton<IAppSettingsService, AppSettingsService>();
         services.AddSingleton<IBookingService, BookingService>();

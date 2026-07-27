@@ -1,27 +1,31 @@
-﻿using supClient.Views;
+using supClient.Localization;
+using supClient.Views;
 
 namespace supClient;
 
 public partial class AppShell : Shell
 {
-    public AppShell(BookingsPage bookingsPage, SettingsPage settingsPage)
+    public AppShell(BookingsPage bookingsPage, SettingsPage settingsPage, LanguagesManager languagesManager)
     {
         InitializeComponent();
 
         MainTabBar.Items.Add(new ShellContent
         {
-            Title = "Брони",
+            Title = Text("Title.Bookings"),
             Content = bookingsPage,
-            Route = "BookingsPage"
+            Route = nameof(BookingsPage)
         });
 
         MainTabBar.Items.Add(new ShellContent
         {
-            Title = "Настройки",
+            Title = Text("Title.Settings"),
             Content = settingsPage,
-            Route = "SettingsPage"
+            Route = nameof(SettingsPage)
         });
 
         Routing.RegisterRoute(nameof(AddBookingPage), typeof(AddBookingPage));
     }
+
+    static string Text(string key)
+        => LocalizedResources.Instance[key];
 }

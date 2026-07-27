@@ -1,3 +1,4 @@
+using supClient.Localization;
 using supClient.Models;
 using supClient.Storage;
 
@@ -95,7 +96,7 @@ public class BookingService : IBookingService
 
         var existing = await _bookingRepository.GetBookingByIdAsync(booking.Id);
         if (existing is null)
-            return BookingSaveResult.Failure("Booking was not found.");
+            return BookingSaveResult.Failure(Text("Dialog.BookingNotFound"));
 
         var availability = await _availabilityService.CheckAvailabilityAsync(
             booking.StartTime,
@@ -119,16 +120,16 @@ public class BookingService : IBookingService
     static string ValidateBooking(Booking booking)
     {
         if (booking.StartTime == default)
-            return "Booking start time is required.";
+            return Text("Validation.StartTimeRequired");
 
         if (booking.Duration <= TimeSpan.Zero)
-            return "Booking duration must be greater than zero.";
+            return Text("Validation.DurationRequired");
 
         if (booking.BoardsCount <= 0)
-            return "At least one SUP board must be selected.";
+            return Text("Validation.BoardsRequired");
 
         if (string.IsNullOrWhiteSpace(booking.ClientName))
-            return "Customer name is required.";
+            return Text("Validation.CustomerNameRequired");
 
         return string.Empty;
     }
@@ -152,4 +153,7 @@ public class BookingService : IBookingService
 
     static int CalculateAdminRevenue(int totalRevenue)
         => (int)Math.Round(totalRevenue * 0.2m, MidpointRounding.AwayFromZero);
+
+    static string Text(string key)
+        => LocalizedResources.Instance[key];
 }

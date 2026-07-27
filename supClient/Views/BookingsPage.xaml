@@ -3,8 +3,9 @@
     x:Class="supClient.Views.BookingsPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:localization="clr-namespace:supClient.Localization"
     xmlns:vm="clr-namespace:supClient.ViewModels"
-    Title="Брони"
+    Title="{localization:Localization Title.Bookings}"
     x:DataType="vm:BookingsPageViewModel">
 
     <Grid
@@ -69,7 +70,7 @@
                     Grid.Column="1"
                     Padding="12,4"
                     Command="{Binding TodayCommand}"
-                    Text="Сегодня" />
+                    Text="{localization:Localization Button.Today}" />
             </Grid>
         </Border>
 
@@ -84,7 +85,7 @@
                     VerticalOptions="Center">
                     <Label
                         HorizontalOptions="Center"
-                        Text="На выбранную дату броней нет"
+                        Text="{localization:Localization Label.EmptyBookings}"
                         TextColor="Gray" />
                 </VerticalStackLayout>
             </CollectionView.EmptyView>
@@ -128,6 +129,6 @@
             Grid.Row="3"
             Command="{Binding AddBookingCommand}"
             HorizontalOptions="Fill"
-            Text="Добавить бронь" />
+            Text="{localization:Localization Button.AddBooking}" />
     </Grid>
 </ContentPage>

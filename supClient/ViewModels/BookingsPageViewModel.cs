@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.Logging;
+using supClient.Localization;
 using supClient.Messages;
 using supClient.Services;
 using supClient.Views;
@@ -242,18 +243,21 @@ public class BookingsPageViewModel : ViewModelBase
 
     void UpdateDateDisplay()
     {
-        DateDisplay = SelectedDate.ToString("dddd, d MMMM yyyy", new System.Globalization.CultureInfo("ru-RU"));
+        DateDisplay = SelectedDate.ToString("dddd, d MMMM yyyy", LocalizedResources.Instance.CurrentCultureInfo);
     }
 
     void UpdateSummaryDisplays(BoardUsageResult boardUsage)
     {
-        AvailableBoardsDisplay = $"Свободно: {boardUsage.AvailableBoards}";
-        CardRevenueDisplay = $"Карт: {boardUsage.CardRevenue} грн";
-        CashRevenueDisplay = $"Готівка: {boardUsage.CashRevenue} грн";
-        TotalRevenueDisplay = $"Всього: {boardUsage.TotalRevenue} грн";
-        AdminRevenueDisplay = $"Адміну: {boardUsage.AdminRevenue} грн";
+        AvailableBoardsDisplay = string.Format(Text("Format.AvailableBoards"), boardUsage.AvailableBoards);
+        CardRevenueDisplay = string.Format(Text("Format.CardRevenue"), boardUsage.CardRevenue);
+        CashRevenueDisplay = string.Format(Text("Format.CashRevenue"), boardUsage.CashRevenue);
+        TotalRevenueDisplay = string.Format(Text("Format.TotalRevenue"), boardUsage.TotalRevenue);
+        AdminRevenueDisplay = string.Format(Text("Format.AdminRevenue"), boardUsage.AdminRevenue);
     }
 
     static TimeSpan GetReferenceTime(DateTime selectedDate)
         => selectedDate.Date == DateTime.Today ? DateTime.Now.TimeOfDay : TimeSpan.Zero;
+
+    static string Text(string key)
+        => LocalizedResources.Instance[key];
 }

@@ -1,6 +1,7 @@
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.Logging;
+using supClient.Localization;
 using supClient.Messages;
 using supClient.Models;
 using supClient.Services;
@@ -26,7 +27,7 @@ public class AddBookingPageViewModel : ViewModelBase
     string _phoneNumber = string.Empty;
     string _comment = string.Empty;
     int _selectedPaymentMethodIndex;
-    string _pageTitle = "Новая бронь";
+    string _pageTitle = Text("Title.NewBooking");
     string _durationDisplay = string.Empty;
     bool _isEditing;
 
@@ -157,7 +158,7 @@ public class AddBookingPageViewModel : ViewModelBase
             return;
         }
 
-        PageTitle = "Новая бронь";
+        PageTitle = Text("Title.NewBooking");
         IsEditing = false;
         _editingBookingId = null;
         _originalBookingDate = null;
@@ -174,12 +175,12 @@ public class AddBookingPageViewModel : ViewModelBase
         var booking = await _bookingService.GetBookingByIdAsync(bookingId);
         if (booking is null)
         {
-            await _dialogService.DisplayAlertAsync("Ошибка", "Бронь не найдена.");
+            await _dialogService.DisplayAlertAsync(Text("Dialog.ErrorTitle"), Text("Dialog.BookingNotFound"));
             await _navigationService.NavigateBack();
             return;
         }
 
-        PageTitle = "Редактировать бронь";
+        PageTitle = Text("Title.EditBooking");
         IsEditing = true;
         _editingBookingId = booking.Id;
         _originalBookingDate = booking.StartTime.Date;
@@ -219,7 +220,7 @@ public class AddBookingPageViewModel : ViewModelBase
 
             if (!result.IsSuccess)
             {
-                await _dialogService.DisplayAlertAsync("Невозможно сохранить", result.ErrorMessage);
+                await _dialogService.DisplayAlertAsync(Text("Dialog.SaveBlockedTitle"), result.ErrorMessage);
                 return;
             }
 
@@ -232,7 +233,7 @@ public class AddBookingPageViewModel : ViewModelBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to save booking");
-            await _dialogService.DisplayAlertAsync("Ошибка", "Не удалось сохранить бронирование.");
+            await _dialogService.DisplayAlertAsync(Text("Dialog.ErrorTitle"), Text("Dialog.SaveBookingFailed"));
         }
     }
 
@@ -244,10 +245,10 @@ public class AddBookingPageViewModel : ViewModelBase
         try
         {
             var confirmed = await _dialogService.DisplayConfirmationAsync(
-                "Удалить бронь?",
-                "Это действие удалит выбранную бронь без возможности отмены.",
-                "Удалить",
-                "Отмена");
+                Text("Dialog.DeleteBookingTitle"),
+                Text("Dialog.DeleteBookingMessage"),
+                Text("Dialog.Delete"),
+                Text("Button.Cancel"));
 
             if (!confirmed)
                 return;
@@ -259,7 +260,7 @@ public class AddBookingPageViewModel : ViewModelBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to delete booking {BookingId}", _editingBookingId);
-            await _dialogService.DisplayAlertAsync("Ошибка", "Не удалось удалить бронирование.");
+            await _dialogService.DisplayAlertAsync(Text("Dialog.ErrorTitle"), Text("Dialog.DeleteBookingFailed"));
         }
     }
 
@@ -295,13 +296,13 @@ public class AddBookingPageViewModel : ViewModelBase
         var duration = GetDuration();
         if (duration <= TimeSpan.Zero)
         {
-            DurationDisplay = "Время окончания должно быть позже времени начала";
+            DurationDisplay = Text("Validation.EndAfterStart");
             return;
         }
 
         DurationDisplay = duration.Hours > 0
-            ? $"Длительность: {duration.Hours} ч {duration.Minutes} мин"
-            : $"Длительность: {duration.Minutes} мин";
+            ? string.Format(Text("Format.DurationHoursMinutes"), duration.Hours, duration.Minutes)
+            : string.Format(Text("Format.DurationMinutes"), duration.Minutes);
     }
 
     async Task NavigateBackAfterSuccessfulChangeAsync()
@@ -315,4 +316,7 @@ public class AddBookingPageViewModel : ViewModelBase
             _logger.LogWarning(ex, "Booking was changed but navigation back failed");
         }
     }
+
+    static string Text(string key)
+        => LocalizedResources.Instance[key];
 }

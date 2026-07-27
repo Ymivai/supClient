@@ -3,8 +3,9 @@
     x:Class="supClient.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:localization="clr-namespace:supClient.Localization"
     Shell.FlyoutBehavior="Disabled"
-    Title="SupClient">
+    Title="{localization:Localization App.Title}">
 
     <TabBar x:Name="MainTabBar" />
 

@@ -1,3 +1,4 @@
+using supClient.Localization;
 using supClient.Models;
 
 namespace supClient.ViewModels;
@@ -16,8 +17,8 @@ public class BookingItemViewModel
         PaymentMethod = booking.PaymentMethod.ToDisplayName();
         Revenue = CalculateRevenue(booking, hourlyRate);
         TimeDisplay = $"{StartTime:HH:mm}-{EndTime:HH:mm}";
-        BoardsDisplay = $"{BoardsCount} SUP";
-        ClientDisplay = string.IsNullOrWhiteSpace(ClientName) ? "Клиент не указан" : ClientName;
+        BoardsDisplay = string.Format(Text("Format.Boards"), BoardsCount);
+        ClientDisplay = string.IsNullOrWhiteSpace(ClientName) ? Text("Booking.ClientNotSpecified") : ClientName;
         DetailsDisplay = BuildDetailsDisplay();
     }
 
@@ -49,7 +50,12 @@ public class BookingItemViewModel
 
     string BuildDetailsDisplay()
     {
-        var parts = new List<string> { BoardsDisplay, PaymentMethod, $"{Revenue} грн" };
+        var parts = new List<string>
+        {
+            BoardsDisplay,
+            PaymentMethod,
+            string.Format(Text("Format.BookingRevenue"), Revenue)
+        };
 
         if (!string.IsNullOrWhiteSpace(PhoneNumber))
             parts.Add(PhoneNumber);
@@ -68,4 +74,7 @@ public class BookingItemViewModel
         var amount = booking.BoardsCount * (decimal)booking.Duration.TotalHours * hourlyRate;
         return (int)Math.Round(amount, MidpointRounding.AwayFromZero);
     }
+
+    static string Text(string key)
+        => LocalizedResources.Instance[key];
 }
