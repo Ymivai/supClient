@@ -1,47 +1,59 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:vm="clr-namespace:supClient.ViewModels"
-             x:Class="supClient.Views.BookingsPage"
-             x:DataType="vm:BookingsPageViewModel"
-             Title="SupClient">
+<ContentPage
+    x:Class="supClient.Views.BookingsPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:supClient.ViewModels"
+    Title="SupClient"
+    x:DataType="vm:BookingsPageViewModel">
 
-    <Grid RowDefinitions="Auto,*,Auto" Padding="20" RowSpacing="16">
-        <Label Grid.Row="0"
-               Text="{Binding DateDisplay}"
-               FontSize="20"
-               FontAttributes="Bold"
-               HorizontalOptions="Center" />
+    <Grid
+        Padding="20"
+        RowDefinitions="Auto,*,Auto"
+        RowSpacing="16">
+        <Label
+            Grid.Row="0"
+            FontAttributes="Bold"
+            FontSize="20"
+            HorizontalOptions="Center"
+            Text="{Binding DateDisplay}" />
 
-        <CollectionView Grid.Row="1"
-                        ItemsSource="{Binding Bookings}"
-                        SelectionMode="None">
+        <CollectionView
+            Grid.Row="1"
+            ItemsSource="{Binding Bookings}"
+            SelectionMode="None">
             <CollectionView.EmptyView>
-                <VerticalStackLayout VerticalOptions="Center" Spacing="8">
-                    <Label Text="На сегодня броней нет"
-                           HorizontalOptions="Center"
-                           TextColor="{StaticResource Gray500}" />
+                <VerticalStackLayout
+                    Spacing="8"
+                    VerticalOptions="Center">
+                    <Label
+                        HorizontalOptions="Center"
+                        Text="На сегодня броней нет"
+                        TextColor="Gray" />
                 </VerticalStackLayout>
             </CollectionView.EmptyView>
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="vm:BookingItemViewModel">
-                    <Border Margin="0,0,0,8"
-                            Padding="16,12"
-                            Stroke="{StaticResource Gray200}"
-                            StrokeThickness="1">
+                    <Border
+                        Margin="0,0,0,8"
+                        Padding="16,12"
+                        Stroke="{StaticResource Gray200}"
+                        StrokeThickness="1">
                         <Border.StrokeShape>
                             <RoundRectangle CornerRadius="8" />
                         </Border.StrokeShape>
-                        <Label Text="{Binding DisplayText}"
-                               FontSize="16" />
+                        <Label
+                            FontSize="16"
+                            Text="{Binding DisplayText}" />
                     </Border>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
 
-        <Button Grid.Row="2"
-                Text="Добавить бронь"
-                Command="{Binding AddBookingCommand}"
-                HorizontalOptions="Fill" />
+        <Button
+            Grid.Row="2"
+            Command="{Binding AddBookingCommand}"
+            HorizontalOptions="Fill"
+            Text="Добавить бронь" />
     </Grid>
 </ContentPage>
