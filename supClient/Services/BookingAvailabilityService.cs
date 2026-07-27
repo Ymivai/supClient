@@ -28,7 +28,9 @@ public class BookingAvailabilityService : IBookingAvailabilityService
         var relevantBookings = FilterBookings(dayBookings, excludeBookingId);
 
         var availableBoards = GetAvailableBoardsAt(startTime, bookingDuration, relevantBookings, settings.TotalBoards);
+        var occupiedBoards = Math.Max(0, settings.TotalBoards - availableBoards);
         var isAvailable = availableBoards >= boardsCount;
+        var conflicts = GetConflictingBookings(startTime, bookingDuration, relevantBookings);
 
         DateTime? nextAvailable = null;
         if (!isAvailable)
@@ -46,6 +48,8 @@ public class BookingAvailabilityService : IBookingAvailabilityService
             IsAvailable = isAvailable,
             RequestedBoards = boardsCount,
             AvailableBoards = availableBoards,
+            OccupiedBoards = occupiedBoards,
+            ConflictingBookings = conflicts,
             NextAvailableStart = nextAvailable
         };
     }
@@ -136,5 +140,25 @@ public class BookingAvailabilityService : IBookingAvailabilityService
             return bookings.ToList();
 
         return bookings.Where(b => b.Id != excludeBookingId.Value).ToList();
+    }
+
+    static IReadOnlyList<BookingConflict> GetConflictingBookings(
+        DateTime startTime,
+        TimeSpan duration,
+        IReadOnlyList<Booking> bookings)
+    {
+        var endTime = startTime + duration;
+
+        return bookings
+            .Where(b => b.StartTime < endTime && b.EndTime > startTime)
+            .Select(b => new BookingConflict
+            {
+                BookingId = b.Id,
+                ClientName = b.ClientName,
+                StartTime = b.StartTime,
+                EndTime = b.EndTime,
+                BoardsCount = b.BoardsCount
+            })
+            .ToList();
     }
 }

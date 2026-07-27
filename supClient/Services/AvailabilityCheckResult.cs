@@ -1,3 +1,5 @@
+using supClient.Models;
+
 namespace supClient.Services;
 
 public class AvailabilityCheckResult
@@ -7,6 +9,12 @@ public class AvailabilityCheckResult
     public int RequestedBoards { get; init; }
 
     public int AvailableBoards { get; init; }
+
+    public int OccupiedBoards { get; init; }
+
+    public int MissingBoards => Math.Max(0, RequestedBoards - AvailableBoards);
+
+    public IReadOnlyList<BookingConflict> ConflictingBookings { get; init; } = [];
 
     public DateTime? NextAvailableStart { get; init; }
 
@@ -19,13 +27,13 @@ public class AvailabilityCheckResult
         {
             "Недостаточно свободных SUP.",
             $"Запрошено: {RequestedBoards}",
-            $"Свободно: {AvailableBoards}"
+            $"Свободно: {AvailableBoards}",
+            $"Занято: {OccupiedBoards}"
         };
 
         if (NextAvailableStart.HasValue)
         {
-            var needMore = RequestedBoards - AvailableBoards;
-            lines.Add($"Ещё {needMore} SUP освободятся в {NextAvailableStart.Value:HH:mm}.");
+            lines.Add($"Ещё {MissingBoards} SUP освободятся в {NextAvailableStart.Value:HH:mm}.");
         }
 
         return string.Join(Environment.NewLine, lines);

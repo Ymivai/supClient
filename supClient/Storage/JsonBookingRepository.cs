@@ -28,6 +28,12 @@ public class JsonBookingRepository : IBookingRepository
             .ToList();
     }
 
+    public async Task<Booking?> GetBookingByIdAsync(Guid id)
+    {
+        var all = await LoadAllAsync();
+        return all.FirstOrDefault(b => b.Id == id);
+    }
+
     public async Task AddBookingAsync(Booking booking)
     {
         await _lock.WaitAsync();
@@ -70,6 +76,19 @@ public class JsonBookingRepository : IBookingRepository
                 all[index] = booking;
                 await SaveAllAsync(all);
             }
+        }
+        finally
+        {
+            _lock.Release();
+        }
+    }
+
+    public async Task DeleteAllBookingsAsync()
+    {
+        await _lock.WaitAsync();
+        try
+        {
+            await SaveAllAsync([]);
         }
         finally
         {

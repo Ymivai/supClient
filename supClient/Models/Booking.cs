@@ -10,7 +10,19 @@ public class Booking
 
     public int BoardsCount { get; set; }
 
+    public string ClientName { get; set; } = string.Empty;
+
+    public string? PhoneNumber { get; set; }
+
+    public string? Comment { get; set; }
+
+    public PaymentMethod PaymentMethod { get; set; } = PaymentMethod.Unpaid;
+
+    public BookingStatus Status { get; set; } = BookingStatus.Scheduled;
+
     public DateTime CreatedAt { get; set; } = DateTime.Now;
+
+    public DateTime UpdatedAt { get; set; } = DateTime.Now;
 
     public DateTime EndTime => StartTime + Duration;
 }
