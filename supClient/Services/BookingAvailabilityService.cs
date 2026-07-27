@@ -22,13 +22,23 @@ public class BookingAvailabilityService : IBookingAvailabilityService
         TimeSpan? duration = null,
         Guid? excludeBookingId = null)
     {
-        var bookingDuration = duration ?? Defines.DefaultBookingDuration;
         var settings = await _settingsService.GetSettingsAsync();
+        var bookingDuration = duration ?? settings.DefaultBookingDuration;
+
+        if (settings.TotalBoards <= 0)
+            return CreateUnavailableResult(settings.TotalBoards, boardsCount, "Количество SUP-досок в настройках должно быть больше нуля.");
+
+        if (boardsCount <= 0)
+            return CreateUnavailableResult(settings.TotalBoards, boardsCount, "Нужно выбрать хотя бы одну SUP-доску.");
+
+        if (bookingDuration <= TimeSpan.Zero)
+            return CreateUnavailableResult(settings.TotalBoards, boardsCount, "Длительность брони должна быть больше нуля.");
+
         var dayBookings = await _bookingRepository.GetBookingsByDateAsync(startTime.Date);
         var relevantBookings = FilterBookings(dayBookings, excludeBookingId);
 
+        var occupiedBoards = GetOccupiedBoardsAt(startTime, bookingDuration, relevantBookings);
         var availableBoards = GetAvailableBoardsAt(startTime, bookingDuration, relevantBookings, settings.TotalBoards);
-        var occupiedBoards = Math.Max(0, settings.TotalBoards - availableBoards);
         var isAvailable = availableBoards >= boardsCount;
         var conflicts = GetConflictingBookings(startTime, bookingDuration, relevantBookings);
 
@@ -46,6 +56,7 @@ public class BookingAvailabilityService : IBookingAvailabilityService
         return new AvailabilityCheckResult
         {
             IsAvailable = isAvailable,
+            TotalBoards = settings.TotalBoards,
             RequestedBoards = boardsCount,
             AvailableBoards = availableBoards,
             OccupiedBoards = occupiedBoards,
@@ -54,14 +65,22 @@ public class BookingAvailabilityService : IBookingAvailabilityService
         };
     }
 
+    public int GetOccupiedBoardsAt(
+        DateTime startTime,
+        TimeSpan duration,
+        IReadOnlyList<Booking> bookings)
+    {
+        var endTime = startTime + duration;
+        return GetPeakOccupancy(startTime, endTime, bookings);
+    }
+
     public int GetAvailableBoardsAt(
         DateTime startTime,
         TimeSpan duration,
         IReadOnlyList<Booking> bookings,
         int totalBoards)
     {
-        var endTime = startTime + duration;
-        var peakOccupancy = GetPeakOccupancy(startTime, endTime, bookings);
+        var peakOccupancy = GetOccupiedBoardsAt(startTime, duration, bookings);
         return Math.Max(0, totalBoards - peakOccupancy);
     }
 
@@ -161,4 +180,15 @@ public class BookingAvailabilityService : IBookingAvailabilityService
             })
             .ToList();
     }
+
+    static AvailabilityCheckResult CreateUnavailableResult(int totalBoards, int requestedBoards, string message)
+        => new()
+        {
+            IsAvailable = false,
+            TotalBoards = Math.Max(0, totalBoards),
+            RequestedBoards = Math.Max(0, requestedBoards),
+            AvailableBoards = Math.Max(0, totalBoards),
+            OccupiedBoards = 0,
+            Message = message
+        };
 }

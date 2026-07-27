@@ -6,6 +6,8 @@ public class AvailabilityCheckResult
 {
     public bool IsAvailable { get; init; }
 
+    public int TotalBoards { get; init; }
+
     public int RequestedBoards { get; init; }
 
     public int AvailableBoards { get; init; }
@@ -16,6 +18,8 @@ public class AvailabilityCheckResult
 
     public IReadOnlyList<BookingConflict> ConflictingBookings { get; init; } = [];
 
+    public string Message { get; init; } = string.Empty;
+
     public DateTime? NextAvailableStart { get; init; }
 
     public string GetUnavailableMessage()
@@ -23,12 +27,16 @@ public class AvailabilityCheckResult
         if (IsAvailable)
             return string.Empty;
 
+        if (!string.IsNullOrWhiteSpace(Message))
+            return Message;
+
         var lines = new List<string>
         {
             "Недостаточно свободных SUP.",
+            $"Всего досок: {TotalBoards}",
             $"Запрошено: {RequestedBoards}",
-            $"Свободно: {AvailableBoards}",
-            $"Занято: {OccupiedBoards}"
+            $"Занято: {OccupiedBoards}",
+            $"Свободно: {AvailableBoards}"
         };
 
         if (NextAvailableStart.HasValue)

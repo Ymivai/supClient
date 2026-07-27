@@ -10,6 +10,8 @@ public interface IBookingAvailabilityService
         TimeSpan? duration = null,
         Guid? excludeBookingId = null);
 
+    int GetOccupiedBoardsAt(DateTime startTime, TimeSpan duration, IReadOnlyList<Booking> bookings);
+
     int GetAvailableBoardsAt(DateTime startTime, TimeSpan duration, IReadOnlyList<Booking> bookings, int totalBoards);
 
     DateTime? FindNextAvailableStart(
