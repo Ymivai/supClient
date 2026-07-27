@@ -42,15 +42,15 @@ public class BookingService : IBookingService
         var availableBoards = Math.Max(0, settings.TotalBoards - occupiedBoards);
         var hourlyRate = GetHourlyRate(date, settings);
         var cardRevenue = bookings
-            .Where(b => b.PaymentMethod is PaymentMethod.Card or PaymentMethod.Transfer)
+            .Where(b => b.PaymentMethod == PaymentMethod.Card)
             .Sum(b => CalculateBookingRevenue(b, hourlyRate));
         var cashRevenue = bookings
             .Where(b => b.PaymentMethod == PaymentMethod.Cash)
             .Sum(b => CalculateBookingRevenue(b, hourlyRate));
-        var otherRevenue = bookings
-            .Where(b => b.PaymentMethod == PaymentMethod.Other)
+        var svoRevenue = bookings
+            .Where(b => b.PaymentMethod == PaymentMethod.SvoParticipant)
             .Sum(b => CalculateBookingRevenue(b, hourlyRate));
-        var totalRevenue = cardRevenue + cashRevenue + otherRevenue;
+        var totalRevenue = cardRevenue + cashRevenue + svoRevenue;
 
         return new BoardUsageResult
         {
@@ -128,6 +128,9 @@ public class BookingService : IBookingService
         if (booking.BoardsCount <= 0)
             return Text("Validation.BoardsRequired");
 
+        if (booking.SvoParticipantsCount < 0 || booking.SvoParticipantsCount > booking.BoardsCount)
+            return Text("Validation.SvoParticipantsInvalid");
+
         if (string.IsNullOrWhiteSpace(booking.ClientName))
             return Text("Validation.CustomerNameRequired");
 
@@ -144,10 +147,13 @@ public class BookingService : IBookingService
 
     static int CalculateBookingRevenue(Booking booking, int hourlyRate)
     {
-        if (booking.PaymentMethod == PaymentMethod.Unpaid)
+        if (booking.PaymentMethod is PaymentMethod.Unpaid or PaymentMethod.Transfer or PaymentMethod.Other)
             return 0;
 
-        var amount = booking.BoardsCount * (decimal)booking.Duration.TotalHours * hourlyRate;
+        var paidBoardsCount = booking.PaymentMethod == PaymentMethod.SvoParticipant
+            ? Math.Max(0, booking.BoardsCount - booking.SvoParticipantsCount)
+            : booking.BoardsCount;
+        var amount = paidBoardsCount * (decimal)booking.Duration.TotalHours * hourlyRate;
         return (int)Math.Round(amount, MidpointRounding.AwayFromZero);
     }
 

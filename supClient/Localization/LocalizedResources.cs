@@ -10,7 +10,7 @@ public class LocalizedResources : INotifyPropertyChanged
     static readonly CultureInfo DefaultCultureInfo;
     static readonly ResourceManager ResourceManager;
 
-    CultureInfo _currentCultureInfo = new("ru");
+    CultureInfo _currentCultureInfo = new("uk");
 
     public static LocalizedResources Instance { get; } = new();
 
@@ -45,6 +45,6 @@ public class LocalizedResources : INotifyPropertyChanged
 
     static CultureInfo NormalizeCulture(CultureInfo cultureInfo)
         => cultureInfo.TwoLetterISOLanguageName == "uk"
-            ? new CultureInfo("uk")
-            : new CultureInfo("ru");
+            ? new CultureInfo("ru")
+            : new CultureInfo("uk");
 }

@@ -11,6 +11,7 @@ public class BookingItemViewModel
         StartTime = booking.StartTime;
         EndTime = booking.EndTime;
         BoardsCount = booking.BoardsCount;
+        SvoParticipantsCount = booking.SvoParticipantsCount;
         ClientName = booking.ClientName;
         PhoneNumber = booking.PhoneNumber ?? string.Empty;
         Comment = booking.Comment ?? string.Empty;
@@ -29,6 +30,8 @@ public class BookingItemViewModel
     public DateTime EndTime { get; }
 
     public int BoardsCount { get; }
+
+    public int SvoParticipantsCount { get; }
 
     public string ClientName { get; }
 
@@ -57,6 +60,9 @@ public class BookingItemViewModel
             string.Format(Text("Format.BookingRevenue"), Revenue)
         };
 
+        if (SvoParticipantsCount > 0)
+            parts.Add(string.Format(Text("Format.SvoParticipants"), SvoParticipantsCount));
+
         if (!string.IsNullOrWhiteSpace(PhoneNumber))
             parts.Add(PhoneNumber);
 
@@ -68,10 +74,13 @@ public class BookingItemViewModel
 
     static int CalculateRevenue(Booking booking, int hourlyRate)
     {
-        if (booking.PaymentMethod == Models.PaymentMethod.Unpaid)
+        if (booking.PaymentMethod is Models.PaymentMethod.Unpaid or Models.PaymentMethod.Transfer or Models.PaymentMethod.Other)
             return 0;
 
-        var amount = booking.BoardsCount * (decimal)booking.Duration.TotalHours * hourlyRate;
+        var paidBoardsCount = booking.PaymentMethod == Models.PaymentMethod.SvoParticipant
+            ? Math.Max(0, booking.BoardsCount - booking.SvoParticipantsCount)
+            : booking.BoardsCount;
+        var amount = paidBoardsCount * (decimal)booking.Duration.TotalHours * hourlyRate;
         return (int)Math.Round(amount, MidpointRounding.AwayFromZero);
     }
 

@@ -10,13 +10,13 @@ public class LanguagesManager
     [
         new()
         {
-            Name = "Language.Russian",
-            Culture = new CultureInfo("ru")
+            Name = "Language.Ukrainian",
+            Culture = new CultureInfo("uk")
         },
         new()
         {
-            Name = "Language.Ukrainian",
-            Culture = new CultureInfo("uk")
+            Name = "Language.Russian",
+            Culture = new CultureInfo("ru")
         }
     ];
 
@@ -44,9 +44,9 @@ public class LanguagesManager
         if (selectedLanguage is not null)
             return selectedLanguage;
 
-        var currentCulture = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "uk"
-            ? "uk"
-            : "ru";
+        var currentCulture = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ru"
+            ? "ru"
+            : "uk";
 
         return SupportedLanguages.First(language => language.Culture.Name == currentCulture);
     }

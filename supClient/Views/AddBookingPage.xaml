@@ -59,6 +59,17 @@
                         SelectedIndex="{Binding SelectedPaymentMethodIndex}" />
             </VerticalStackLayout>
 
+            <VerticalStackLayout Spacing="8"
+                                 IsVisible="{Binding IsSvoParticipantPayment}">
+                <Label Text="{localization:Localization Label.SvoParticipantsCount}" FontAttributes="Bold" />
+                <Stepper Minimum="1"
+                         Maximum="{Binding BoardsCount}"
+                         Value="{Binding SvoParticipantsCount}"
+                         Increment="1" />
+                <Label Text="{Binding SvoParticipantsCount, StringFormat={localization:Localization Label.SvoParticipantsSelected}}"
+                       HorizontalOptions="Center" />
+            </VerticalStackLayout>
+
             <VerticalStackLayout Spacing="8">
                 <Label Text="{localization:Localization Label.Comment}" FontAttributes="Bold" />
                 <Editor AutoSize="TextChanges"

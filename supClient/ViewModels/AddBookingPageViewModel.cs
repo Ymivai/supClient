@@ -27,6 +27,8 @@ public class AddBookingPageViewModel : ViewModelBase
     string _phoneNumber = string.Empty;
     string _comment = string.Empty;
     int _selectedPaymentMethodIndex;
+    int _svoParticipantsCount;
+    bool _isSvoParticipantPayment;
     string _pageTitle = Text("Title.NewBooking");
     string _durationDisplay = string.Empty;
     bool _isEditing;
@@ -44,8 +46,7 @@ public class AddBookingPageViewModel : ViewModelBase
         _dialogService = dialogService;
         _logger = logger;
 
-        PaymentMethodNames = Enum.GetValues<PaymentMethod>()
-            .OrderBy(m => m.ToSelectionIndex())
+        PaymentMethodNames = PaymentMethodExtensions.BookingPaymentMethods
             .Select(m => m.ToDisplayName())
             .ToList();
 
@@ -112,7 +113,12 @@ public class AddBookingPageViewModel : ViewModelBase
         set
         {
             if (SetProperty(ref _boardsCount, value))
+            {
+                if (SvoParticipantsCount > BoardsCount)
+                    SvoParticipantsCount = BoardsCount;
+
                 (SaveCommand as Command)?.ChangeCanExecute();
+            }
         }
     }
 
@@ -141,7 +147,34 @@ public class AddBookingPageViewModel : ViewModelBase
     public int SelectedPaymentMethodIndex
     {
         get => _selectedPaymentMethodIndex;
-        set => SetProperty(ref _selectedPaymentMethodIndex, value);
+        set
+        {
+            if (SetProperty(ref _selectedPaymentMethodIndex, value))
+            {
+                IsSvoParticipantPayment = SelectedPaymentMethod == PaymentMethod.SvoParticipant;
+                if (!IsSvoParticipantPayment)
+                    SvoParticipantsCount = 0;
+
+                (SaveCommand as Command)?.ChangeCanExecute();
+            }
+        }
+    }
+
+    public int SvoParticipantsCount
+    {
+        get => _svoParticipantsCount;
+        set
+        {
+            var normalizedValue = Math.Clamp(value, 0, BoardsCount);
+            if (SetProperty(ref _svoParticipantsCount, normalizedValue))
+                (SaveCommand as Command)?.ChangeCanExecute();
+        }
+    }
+
+    public bool IsSvoParticipantPayment
+    {
+        get => _isSvoParticipantPayment;
+        private set => SetProperty(ref _isSvoParticipantPayment, value);
     }
 
     public ICommand SaveCommand { get; }
@@ -188,6 +221,7 @@ public class AddBookingPageViewModel : ViewModelBase
         StartTime = booking.StartTime.TimeOfDay;
         EndTime = booking.EndTime.TimeOfDay;
         BoardsCount = booking.BoardsCount;
+        SvoParticipantsCount = booking.SvoParticipantsCount;
         ClientName = booking.ClientName;
         PhoneNumber = booking.PhoneNumber ?? string.Empty;
         Comment = booking.Comment ?? string.Empty;
@@ -206,6 +240,7 @@ public class AddBookingPageViewModel : ViewModelBase
                 StartTime = BookingDate.Date.Add(StartTime),
                 Duration = GetDuration(),
                 BoardsCount = BoardsCount,
+                SvoParticipantsCount = IsSvoParticipantPayment ? SvoParticipantsCount : 0,
                 ClientName = ClientName.Trim(),
                 PhoneNumber = string.IsNullOrWhiteSpace(PhoneNumber) ? null : PhoneNumber.Trim(),
                 Comment = string.IsNullOrWhiteSpace(Comment) ? null : Comment.Trim(),
@@ -271,6 +306,8 @@ public class AddBookingPageViewModel : ViewModelBase
 
     bool CanSave()
         => BoardsCount > 0
+           && (!IsSvoParticipantPayment || SvoParticipantsCount > 0)
+           && SvoParticipantsCount <= BoardsCount
            && GetDuration() > TimeSpan.Zero
            && !string.IsNullOrWhiteSpace(ClientName);
 
@@ -319,4 +356,7 @@ public class AddBookingPageViewModel : ViewModelBase
 
     static string Text(string key)
         => LocalizedResources.Instance[key];
+
+    PaymentMethod SelectedPaymentMethod
+        => PaymentMethodExtensions.FromSelectionIndex(SelectedPaymentMethodIndex);
 }

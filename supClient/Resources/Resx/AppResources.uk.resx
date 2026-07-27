@@ -57,6 +57,12 @@
   <data name="Label.PaymentMethod" xml:space="preserve">
     <value>Спосіб оплати</value>
   </data>
+  <data name="Label.SvoParticipantsCount" xml:space="preserve">
+    <value>Учасники СВО</value>
+  </data>
+  <data name="Label.SvoParticipantsSelected" xml:space="preserve">
+    <value>Учасників: {0}</value>
+  </data>
   <data name="Label.Comment" xml:space="preserve">
     <value>Коментар</value>
   </data>
@@ -135,6 +141,9 @@
   <data name="Format.BookingRevenue" xml:space="preserve">
     <value>{0} грн</value>
   </data>
+  <data name="Format.SvoParticipants" xml:space="preserve">
+    <value>учасників СВО: {0}</value>
+  </data>
   <data name="Format.Boards" xml:space="preserve">
     <value>{0} SUP</value>
   </data>
@@ -204,6 +213,9 @@
   <data name="Validation.BoardsRequired" xml:space="preserve">
     <value>Потрібно вибрати хоча б одну SUP-дошку.</value>
   </data>
+  <data name="Validation.SvoParticipantsInvalid" xml:space="preserve">
+    <value>Кількість учасників СВО не може бути більшою за кількість SUP.</value>
+  </data>
   <data name="Validation.CustomerNameRequired" xml:space="preserve">
     <value>Ім'я клієнта обов'язкове.</value>
   </data>
@@ -239,6 +251,9 @@
   </data>
   <data name="Payment.Card" xml:space="preserve">
     <value>Карта</value>
+  </data>
+  <data name="Payment.SvoParticipant" xml:space="preserve">
+    <value>Учасник СВО</value>
   </data>
   <data name="Payment.Transfer" xml:space="preserve">
     <value>Переказ</value>
