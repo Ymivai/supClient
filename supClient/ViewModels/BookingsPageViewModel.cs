@@ -17,6 +17,7 @@ public class BookingsPageViewModel : ViewModelBase
     DateTime _selectedDate = DateTime.Today;
     string _dateDisplay = string.Empty;
     string _boardUsageDisplay = string.Empty;
+    BookingItemViewModel? _selectedBooking;
     int _totalBoards;
     int _occupiedBoards;
     int _availableBoards;
@@ -87,6 +88,16 @@ public class BookingsPageViewModel : ViewModelBase
         private set => SetProperty(ref _boardUsageDisplay, value);
     }
 
+    public BookingItemViewModel? SelectedBooking
+    {
+        get => _selectedBooking;
+        set
+        {
+            if (SetProperty(ref _selectedBooking, value) && value is not null)
+                MainThread.BeginInvokeOnMainThread(async () => await EditBookingAsync(value.Id));
+        }
+    }
+
     public ICommand AddBookingCommand { get; }
 
     public ICommand PreviousDayCommand { get; }
@@ -133,6 +144,15 @@ public class BookingsPageViewModel : ViewModelBase
     async Task AddBookingAsync()
     {
         await _navigationService.NavigateToPage<AddBookingPage>(SelectedDate);
+    }
+
+    async Task EditBookingAsync(Guid bookingId)
+    {
+        if (bookingId == Guid.Empty)
+            return;
+
+        await _navigationService.NavigateToPage<AddBookingPage>(bookingId);
+        SelectedBooking = null;
     }
 
     async Task ChangeDateAsync(int days)

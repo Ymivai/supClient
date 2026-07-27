@@ -61,7 +61,8 @@
         <CollectionView
             Grid.Row="2"
             ItemsSource="{Binding Bookings}"
-            SelectionMode="None">
+            SelectedItem="{Binding SelectedBooking}"
+            SelectionMode="Single">
             <CollectionView.EmptyView>
                 <VerticalStackLayout
                     Spacing="8"

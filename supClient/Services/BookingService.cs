@@ -111,6 +111,9 @@ public class BookingService : IBookingService
         if (booking.BoardsCount <= 0)
             return "At least one SUP board must be selected.";
 
+        if (string.IsNullOrWhiteSpace(booking.ClientName))
+            return "Customer name is required.";
+
         return string.Empty;
     }
 }

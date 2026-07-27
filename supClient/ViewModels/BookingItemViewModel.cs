@@ -6,6 +6,7 @@ public class BookingItemViewModel
 {
     public BookingItemViewModel(Booking booking)
     {
+        Id = booking.Id;
         StartTime = booking.StartTime;
         EndTime = booking.EndTime;
         BoardsCount = booking.BoardsCount;
@@ -18,6 +19,8 @@ public class BookingItemViewModel
         ClientDisplay = string.IsNullOrWhiteSpace(ClientName) ? "Клиент не указан" : ClientName;
         DetailsDisplay = BuildDetailsDisplay();
     }
+
+    public Guid Id { get; }
 
     public DateTime StartTime { get; }
 

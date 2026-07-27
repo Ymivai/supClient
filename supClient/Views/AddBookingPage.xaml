@@ -4,13 +4,32 @@
              xmlns:vm="clr-namespace:supClient.ViewModels"
              x:Class="supClient.Views.AddBookingPage"
              x:DataType="vm:AddBookingPageViewModel"
-             Title="Новая бронь">
+             Title="{Binding PageTitle}">
 
     <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="24">
+        <VerticalStackLayout Padding="20" Spacing="20">
             <VerticalStackLayout Spacing="8">
-                <Label Text="Количество SUP"
-                       FontAttributes="Bold" />
+                <Label Text="Дата" FontAttributes="Bold" />
+                <DatePicker Date="{Binding BookingDate}" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="8">
+                <Label Text="Время начала" FontAttributes="Bold" />
+                <TimePicker Time="{Binding StartTime}" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="8">
+                <Label Text="Длительность" FontAttributes="Bold" />
+                <Stepper Minimum="1"
+                         Maximum="12"
+                         Value="{Binding DurationHours}"
+                         Increment="1" />
+                <Label Text="{Binding DurationHours, StringFormat='Часов: {0}'}"
+                       HorizontalOptions="Center" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="8">
+                <Label Text="Количество SUP" FontAttributes="Bold" />
                 <Stepper Minimum="1"
                          Maximum="20"
                          Value="{Binding BoardsCount}"
@@ -20,9 +39,37 @@
             </VerticalStackLayout>
 
             <VerticalStackLayout Spacing="8">
-                <Label Text="Время начала"
-                       FontAttributes="Bold" />
-                <TimePicker Time="{Binding StartTime}" />
+                <Label Text="Клиент" FontAttributes="Bold" />
+                <Entry Placeholder="Имя или Telegram"
+                       Text="{Binding ClientName}" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="8">
+                <Label Text="Телефон" FontAttributes="Bold" />
+                <Entry Keyboard="Telephone"
+                       Placeholder="Необязательно"
+                       Text="{Binding PhoneNumber}" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="8">
+                <Label Text="Способ оплаты" FontAttributes="Bold" />
+                <Picker SelectedIndex="{Binding SelectedPaymentMethodIndex}">
+                    <Picker.Items>
+                        <x:String>Не оплачено</x:String>
+                        <x:String>Наличные</x:String>
+                        <x:String>Карта</x:String>
+                        <x:String>Перевод</x:String>
+                        <x:String>Другое</x:String>
+                    </Picker.Items>
+                </Picker>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="8">
+                <Label Text="Комментарий" FontAttributes="Bold" />
+                <Editor AutoSize="TextChanges"
+                        HeightRequest="90"
+                        Placeholder="Необязательно"
+                        Text="{Binding Comment}" />
             </VerticalStackLayout>
 
             <VerticalStackLayout Spacing="12">
