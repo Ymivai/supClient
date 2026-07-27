@@ -11,7 +11,9 @@ public class AppSettingsService : IAppSettingsService
     static readonly JsonSerializerOptions JsonOptions = new()
     {
         WriteIndented = true,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        ReadCommentHandling = JsonCommentHandling.Skip,
+        AllowTrailingCommas = true
     };
 
     public AppSettingsService()
@@ -27,9 +29,17 @@ public class AppSettingsService : IAppSettingsService
             if (!File.Exists(_filePath))
                 return new AppSettings();
 
-            await using var stream = File.OpenRead(_filePath);
-            var settings = await JsonSerializer.DeserializeAsync<AppSettings>(stream, JsonOptions);
-            return settings ?? new AppSettings();
+            try
+            {
+                await using var stream = File.OpenRead(_filePath);
+                var settings = await JsonSerializer.DeserializeAsync<AppSettings>(stream, JsonOptions);
+                return settings ?? new AppSettings();
+            }
+            catch (JsonException)
+            {
+                BackupInvalidFile();
+                return new AppSettings();
+            }
         }
         finally
         {
@@ -42,6 +52,7 @@ public class AppSettingsService : IAppSettingsService
         await _lock.WaitAsync();
         try
         {
+            EnsureStorageDirectoryExists();
             await using var stream = File.Create(_filePath);
             await JsonSerializer.SerializeAsync(stream, settings, JsonOptions);
         }
@@ -49,5 +60,21 @@ public class AppSettingsService : IAppSettingsService
         {
             _lock.Release();
         }
+    }
+
+    void EnsureStorageDirectoryExists()
+    {
+        var directory = Path.GetDirectoryName(_filePath);
+        if (!string.IsNullOrWhiteSpace(directory))
+            Directory.CreateDirectory(directory);
+    }
+
+    void BackupInvalidFile()
+    {
+        if (!File.Exists(_filePath))
+            return;
+
+        var backupPath = $"{_filePath}.invalid-{DateTime.UtcNow:yyyyMMddHHmmss}";
+        File.Move(_filePath, backupPath, overwrite: true);
     }
 }

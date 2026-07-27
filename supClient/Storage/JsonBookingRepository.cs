@@ -11,7 +11,9 @@ public class JsonBookingRepository : IBookingRepository
     static readonly JsonSerializerOptions JsonOptions = new()
     {
         WriteIndented = true,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        ReadCommentHandling = JsonCommentHandling.Skip,
+        AllowTrailingCommas = true
     };
 
     public JsonBookingRepository()
@@ -21,17 +23,33 @@ public class JsonBookingRepository : IBookingRepository
 
     public async Task<IReadOnlyList<Booking>> GetBookingsByDateAsync(DateTime date)
     {
-        var all = await LoadAllAsync();
-        return all
-            .Where(b => b.StartTime.Date == date.Date)
-            .OrderBy(b => b.StartTime)
-            .ToList();
+        await _lock.WaitAsync();
+        try
+        {
+            var all = await LoadAllAsync();
+            return all
+                .Where(b => b.StartTime.Date == date.Date)
+                .OrderBy(b => b.StartTime)
+                .ToList();
+        }
+        finally
+        {
+            _lock.Release();
+        }
     }
 
     public async Task<Booking?> GetBookingByIdAsync(Guid id)
     {
-        var all = await LoadAllAsync();
-        return all.FirstOrDefault(b => b.Id == id);
+        await _lock.WaitAsync();
+        try
+        {
+            var all = await LoadAllAsync();
+            return all.FirstOrDefault(b => b.Id == id);
+        }
+        finally
+        {
+            _lock.Release();
+        }
     }
 
     public async Task AddBookingAsync(Booking booking)
@@ -101,14 +119,39 @@ public class JsonBookingRepository : IBookingRepository
         if (!File.Exists(_filePath))
             return [];
 
-        await using var stream = File.OpenRead(_filePath);
-        var bookings = await JsonSerializer.DeserializeAsync<List<Booking>>(stream, JsonOptions);
-        return bookings ?? [];
+        try
+        {
+            await using var stream = File.OpenRead(_filePath);
+            var bookings = await JsonSerializer.DeserializeAsync<List<Booking>>(stream, JsonOptions);
+            return bookings ?? [];
+        }
+        catch (JsonException)
+        {
+            BackupInvalidFile();
+            return [];
+        }
     }
 
     async Task SaveAllAsync(List<Booking> bookings)
     {
+        EnsureStorageDirectoryExists();
         await using var stream = File.Create(_filePath);
         await JsonSerializer.SerializeAsync(stream, bookings, JsonOptions);
+    }
+
+    void EnsureStorageDirectoryExists()
+    {
+        var directory = Path.GetDirectoryName(_filePath);
+        if (!string.IsNullOrWhiteSpace(directory))
+            Directory.CreateDirectory(directory);
+    }
+
+    void BackupInvalidFile()
+    {
+        if (!File.Exists(_filePath))
+            return;
+
+        var backupPath = $"{_filePath}.invalid-{DateTime.UtcNow:yyyyMMddHHmmss}";
+        File.Move(_filePath, backupPath, overwrite: true);
     }
 }
