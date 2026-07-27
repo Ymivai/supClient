@@ -32,6 +32,18 @@
 
             <Button Text="Сохранить"
                     Command="{Binding SaveCommand}" />
+
+            <BoxView HeightRequest="1"
+                     Color="{StaticResource Gray200}" />
+
+            <VerticalStackLayout Spacing="8">
+                <Label Text="Локальные данные"
+                       FontAttributes="Bold" />
+                <Button Text="Удалить все брони"
+                        Command="{Binding DeleteAllBookingsCommand}"
+                        BackgroundColor="#B3261E"
+                        TextColor="White" />
+            </VerticalStackLayout>
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

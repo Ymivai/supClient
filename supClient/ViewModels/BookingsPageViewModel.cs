@@ -42,6 +42,7 @@ public class BookingsPageViewModel : ViewModelBase
         UpdateDateDisplay();
         WeakReferenceMessenger.Default.Register<BookingsChangedMessage>(this, OnBookingsChanged);
         WeakReferenceMessenger.Default.Register<SettingsChangedMessage>(this, OnSettingsChanged);
+        WeakReferenceMessenger.Default.Register<AllBookingsDeletedMessage>(this, OnAllBookingsDeleted);
     }
 
     public ObservableCollection<BookingItemViewModel> Bookings { get; }
@@ -191,6 +192,11 @@ public class BookingsPageViewModel : ViewModelBase
     }
 
     void OnSettingsChanged(object recipient, SettingsChangedMessage message)
+    {
+        MainThread.BeginInvokeOnMainThread(async () => await LoadBookingsAsync());
+    }
+
+    void OnAllBookingsDeleted(object recipient, AllBookingsDeletedMessage message)
     {
         MainThread.BeginInvokeOnMainThread(async () => await LoadBookingsAsync());
     }

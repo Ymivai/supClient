@@ -11,6 +11,7 @@ namespace supClient.ViewModels;
 public class SettingsPageViewModel : ViewModelBase
 {
     readonly IAppSettingsService _settingsService;
+    readonly IDataResetService _dataResetService;
     readonly IDialogService _dialogService;
     readonly ILogger<SettingsPageViewModel> _logger;
 
@@ -19,14 +20,17 @@ public class SettingsPageViewModel : ViewModelBase
 
     public SettingsPageViewModel(
         IAppSettingsService settingsService,
+        IDataResetService dataResetService,
         IDialogService dialogService,
         ILogger<SettingsPageViewModel> logger)
     {
         _settingsService = settingsService;
+        _dataResetService = dataResetService;
         _dialogService = dialogService;
         _logger = logger;
 
         SaveCommand = new Command(async () => await SaveAsync(), CanSave);
+        DeleteAllBookingsCommand = new Command(async () => await DeleteAllBookingsAsync());
     }
 
     public int TotalBoards
@@ -50,6 +54,8 @@ public class SettingsPageViewModel : ViewModelBase
     }
 
     public ICommand SaveCommand { get; }
+
+    public ICommand DeleteAllBookingsCommand { get; }
 
     public override async Task OnNavigatedTo()
     {
@@ -89,6 +95,30 @@ public class SettingsPageViewModel : ViewModelBase
         {
             _logger.LogError(ex, "Failed to save settings");
             await _dialogService.DisplayAlertAsync("Ошибка", "Не удалось сохранить настройки.");
+        }
+    }
+
+    async Task DeleteAllBookingsAsync()
+    {
+        try
+        {
+            var confirmed = await _dialogService.DisplayConfirmationAsync(
+                "Удалить все брони?",
+                "Это действие полностью удалит все локально сохраненные бронирования. Настройки останутся без изменений.",
+                "Удалить",
+                "Отмена");
+
+            if (!confirmed)
+                return;
+
+            await _dataResetService.DeleteAllBookingsAsync();
+            WeakReferenceMessenger.Default.Send(new AllBookingsDeletedMessage(DateTime.Now));
+            await _dialogService.DisplayAlertAsync("Готово", "Все локальные бронирования удалены.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to delete all bookings");
+            await _dialogService.DisplayAlertAsync("Ошибка", "Не удалось удалить локальные бронирования.");
         }
     }
 
