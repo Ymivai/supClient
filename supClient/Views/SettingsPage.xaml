@@ -19,6 +19,17 @@
                        HorizontalOptions="Center" />
             </VerticalStackLayout>
 
+            <VerticalStackLayout Spacing="8">
+                <Label Text="Длительность брони по умолчанию"
+                       FontAttributes="Bold" />
+                <Stepper Minimum="1"
+                         Maximum="12"
+                         Value="{Binding DefaultBookingDurationHours}"
+                         Increment="1" />
+                <Label Text="{Binding DefaultBookingDurationHours, StringFormat='Часов: {0}'}"
+                       HorizontalOptions="Center" />
+            </VerticalStackLayout>
+
             <Button Text="Сохранить"
                     Command="{Binding SaveCommand}" />
         </VerticalStackLayout>

@@ -12,6 +12,7 @@ public class AddBookingPageViewModel : ViewModelBase
 {
     readonly IBookingRepository _bookingRepository;
     readonly IBookingAvailabilityService _availabilityService;
+    readonly IAppSettingsService _settingsService;
     readonly INavigationService _navigationService;
     readonly IDialogService _dialogService;
     readonly ILogger<AddBookingPageViewModel> _logger;
@@ -23,12 +24,14 @@ public class AddBookingPageViewModel : ViewModelBase
     public AddBookingPageViewModel(
         IBookingRepository bookingRepository,
         IBookingAvailabilityService availabilityService,
+        IAppSettingsService settingsService,
         INavigationService navigationService,
         IDialogService dialogService,
         ILogger<AddBookingPageViewModel> logger)
     {
         _bookingRepository = bookingRepository;
         _availabilityService = availabilityService;
+        _settingsService = settingsService;
         _navigationService = navigationService;
         _dialogService = dialogService;
         _logger = logger;
@@ -55,9 +58,7 @@ public class AddBookingPageViewModel : ViewModelBase
         set
         {
             if (SetProperty(ref _boardsCount, value))
-            {
                 (SaveCommand as Command)?.ChangeCanExecute();
-            }
         }
     }
 
@@ -78,7 +79,9 @@ public class AddBookingPageViewModel : ViewModelBase
         try
         {
             var startDateTime = BookingDate.Date.Add(StartTime);
-            var result = await _availabilityService.CheckAvailabilityAsync(startDateTime, BoardsCount);
+            var settings = await _settingsService.GetSettingsAsync();
+            var duration = settings.DefaultBookingDuration;
+            var result = await _availabilityService.CheckAvailabilityAsync(startDateTime, BoardsCount, duration);
 
             if (!result.IsAvailable)
             {
@@ -86,12 +89,14 @@ public class AddBookingPageViewModel : ViewModelBase
                 return;
             }
 
+            var now = DateTime.Now;
             var booking = new Booking
             {
                 StartTime = startDateTime,
-                Duration = Defines.DefaultBookingDuration,
+                Duration = duration,
                 BoardsCount = BoardsCount,
-                CreatedAt = DateTime.Now
+                CreatedAt = now,
+                UpdatedAt = now
             };
 
             await _bookingRepository.AddBookingAsync(booking);

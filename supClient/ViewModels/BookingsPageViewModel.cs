@@ -32,6 +32,7 @@ public class BookingsPageViewModel : ViewModelBase
 
         UpdateDateDisplay();
         WeakReferenceMessenger.Default.Register<BookingsChangedMessage>(this, OnBookingsChanged);
+        WeakReferenceMessenger.Default.Register<SettingsChangedMessage>(this, OnSettingsChanged);
     }
 
     public ObservableCollection<BookingItemViewModel> Bookings { get; }
@@ -97,6 +98,11 @@ public class BookingsPageViewModel : ViewModelBase
         if (message.Value.Date != SelectedDate.Date)
             return;
 
+        MainThread.BeginInvokeOnMainThread(async () => await LoadBookingsAsync());
+    }
+
+    void OnSettingsChanged(object recipient, SettingsChangedMessage message)
+    {
         MainThread.BeginInvokeOnMainThread(async () => await LoadBookingsAsync());
     }
 

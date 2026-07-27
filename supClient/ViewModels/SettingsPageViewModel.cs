@@ -1,5 +1,7 @@
 using System.Windows.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.Logging;
+using supClient.Messages;
 using supClient.Models;
 using supClient.Services;
 using supClient.Storage;
@@ -13,6 +15,7 @@ public class SettingsPageViewModel : ViewModelBase
     readonly ILogger<SettingsPageViewModel> _logger;
 
     int _totalBoards = Defines.DefaultTotalBoards;
+    int _defaultBookingDurationHours = (int)Defines.DefaultBookingDuration.TotalHours;
 
     public SettingsPageViewModel(
         IAppSettingsService settingsService,
@@ -23,7 +26,7 @@ public class SettingsPageViewModel : ViewModelBase
         _dialogService = dialogService;
         _logger = logger;
 
-        SaveCommand = new Command(async () => await SaveAsync(), () => TotalBoards > 0);
+        SaveCommand = new Command(async () => await SaveAsync(), CanSave);
     }
 
     public int TotalBoards
@@ -32,9 +35,17 @@ public class SettingsPageViewModel : ViewModelBase
         set
         {
             if (SetProperty(ref _totalBoards, value))
-            {
                 (SaveCommand as Command)?.ChangeCanExecute();
-            }
+        }
+    }
+
+    public int DefaultBookingDurationHours
+    {
+        get => _defaultBookingDurationHours;
+        set
+        {
+            if (SetProperty(ref _defaultBookingDurationHours, value))
+                (SaveCommand as Command)?.ChangeCanExecute();
         }
     }
 
@@ -51,6 +62,7 @@ public class SettingsPageViewModel : ViewModelBase
         {
             var settings = await _settingsService.GetSettingsAsync();
             TotalBoards = settings.TotalBoards;
+            DefaultBookingDurationHours = Math.Max(1, (int)settings.DefaultBookingDuration.TotalHours);
         }
         catch (Exception ex)
         {
@@ -62,10 +74,14 @@ public class SettingsPageViewModel : ViewModelBase
     {
         try
         {
-            await _settingsService.SaveSettingsAsync(new AppSettings
+            var settings = new AppSettings
             {
-                TotalBoards = TotalBoards
-            });
+                TotalBoards = TotalBoards,
+                DefaultBookingDuration = TimeSpan.FromHours(DefaultBookingDurationHours)
+            };
+
+            await _settingsService.SaveSettingsAsync(settings);
+            WeakReferenceMessenger.Default.Send(new SettingsChangedMessage(settings));
 
             await _dialogService.DisplayAlertAsync("Сохранено", "Настройки успешно сохранены.");
         }
@@ -75,4 +91,7 @@ public class SettingsPageViewModel : ViewModelBase
             await _dialogService.DisplayAlertAsync("Ошибка", "Не удалось сохранить настройки.");
         }
     }
+
+    bool CanSave()
+        => TotalBoards > 0 && DefaultBookingDurationHours > 0;
 }
