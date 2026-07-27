@@ -20,13 +20,14 @@ public class AddBookingPageViewModel : ViewModelBase
     DateTime? _originalBookingDate;
     DateTime _bookingDate = DateTime.Today;
     TimeSpan _startTime = DateTime.Now.TimeOfDay;
-    int _durationHours = (int)Defines.DefaultBookingDuration.TotalHours;
+    TimeSpan _endTime = DateTime.Now.TimeOfDay.Add(Defines.DefaultBookingDuration);
     int _boardsCount = 1;
     string _clientName = string.Empty;
     string _phoneNumber = string.Empty;
     string _comment = string.Empty;
     int _selectedPaymentMethodIndex;
     string _pageTitle = "Новая бронь";
+    string _durationDisplay = string.Empty;
     bool _isEditing;
 
     public AddBookingPageViewModel(
@@ -50,6 +51,8 @@ public class AddBookingPageViewModel : ViewModelBase
         SaveCommand = new Command(async () => await SaveAsync(), CanSave);
         DeleteCommand = new Command(async () => await DeleteAsync(), () => IsEditing);
         CancelCommand = new Command(async () => await CancelAsync());
+
+        UpdateDurationDisplay();
     }
 
     public IReadOnlyList<string> PaymentMethodNames { get; }
@@ -79,17 +82,27 @@ public class AddBookingPageViewModel : ViewModelBase
     public TimeSpan StartTime
     {
         get => _startTime;
-        set => SetProperty(ref _startTime, value);
-    }
-
-    public int DurationHours
-    {
-        get => _durationHours;
         set
         {
-            if (SetProperty(ref _durationHours, value))
-                (SaveCommand as Command)?.ChangeCanExecute();
+            if (SetProperty(ref _startTime, value))
+                OnTimeChanged();
         }
+    }
+
+    public TimeSpan EndTime
+    {
+        get => _endTime;
+        set
+        {
+            if (SetProperty(ref _endTime, value))
+                OnTimeChanged();
+        }
+    }
+
+    public string DurationDisplay
+    {
+        get => _durationDisplay;
+        private set => SetProperty(ref _durationDisplay, value);
     }
 
     public int BoardsCount
@@ -153,7 +166,7 @@ public class AddBookingPageViewModel : ViewModelBase
             BookingDate = date.Date;
 
         var settings = await _settingsService.GetSettingsAsync();
-        DurationHours = Math.Max(1, (int)settings.DefaultBookingDuration.TotalHours);
+        EndTime = GetDefaultEndTime(StartTime, settings.DefaultBookingDuration);
     }
 
     async Task LoadBookingAsync(Guid bookingId)
@@ -172,12 +185,13 @@ public class AddBookingPageViewModel : ViewModelBase
         _originalBookingDate = booking.StartTime.Date;
         BookingDate = booking.StartTime.Date;
         StartTime = booking.StartTime.TimeOfDay;
-        DurationHours = Math.Max(1, (int)booking.Duration.TotalHours);
+        EndTime = booking.EndTime.TimeOfDay;
         BoardsCount = booking.BoardsCount;
         ClientName = booking.ClientName;
         PhoneNumber = booking.PhoneNumber ?? string.Empty;
         Comment = booking.Comment ?? string.Empty;
         SelectedPaymentMethodIndex = booking.PaymentMethod.ToSelectionIndex();
+        UpdateDurationDisplay();
     }
 
     async Task SaveAsync()
@@ -189,7 +203,7 @@ public class AddBookingPageViewModel : ViewModelBase
             {
                 Id = _editingBookingId ?? Guid.NewGuid(),
                 StartTime = BookingDate.Date.Add(StartTime),
-                Duration = TimeSpan.FromHours(DurationHours),
+                Duration = GetDuration(),
                 BoardsCount = BoardsCount,
                 ClientName = ClientName.Trim(),
                 PhoneNumber = string.IsNullOrWhiteSpace(PhoneNumber) ? null : PhoneNumber.Trim(),
@@ -256,8 +270,39 @@ public class AddBookingPageViewModel : ViewModelBase
 
     bool CanSave()
         => BoardsCount > 0
-           && DurationHours > 0
+           && GetDuration() > TimeSpan.Zero
            && !string.IsNullOrWhiteSpace(ClientName);
+
+    TimeSpan GetDuration()
+        => EndTime - StartTime;
+
+    static TimeSpan GetDefaultEndTime(TimeSpan startTime, TimeSpan defaultDuration)
+    {
+        var endTime = startTime.Add(defaultDuration);
+        return endTime >= TimeSpan.FromDays(1)
+            ? new TimeSpan(23, 59, 0)
+            : endTime;
+    }
+
+    void OnTimeChanged()
+    {
+        UpdateDurationDisplay();
+        (SaveCommand as Command)?.ChangeCanExecute();
+    }
+
+    void UpdateDurationDisplay()
+    {
+        var duration = GetDuration();
+        if (duration <= TimeSpan.Zero)
+        {
+            DurationDisplay = "Время окончания должно быть позже времени начала";
+            return;
+        }
+
+        DurationDisplay = duration.Hours > 0
+            ? $"Длительность: {duration.Hours} ч {duration.Minutes} мин"
+            : $"Длительность: {duration.Minutes} мин";
+    }
 
     async Task NavigateBackAfterSuccessfulChangeAsync()
     {
@@ -270,5 +315,4 @@ public class AddBookingPageViewModel : ViewModelBase
             _logger.LogWarning(ex, "Booking was changed but navigation back failed");
         }
     }
-
 }

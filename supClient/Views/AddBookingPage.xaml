@@ -13,20 +13,21 @@
                 <DatePicker Date="{Binding BookingDate}" />
             </VerticalStackLayout>
 
-            <VerticalStackLayout Spacing="8">
-                <Label Text="Время начала" FontAttributes="Bold" />
-                <TimePicker Time="{Binding StartTime}" />
-            </VerticalStackLayout>
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                <VerticalStackLayout Grid.Column="0" Spacing="8">
+                    <Label Text="Начало" FontAttributes="Bold" />
+                    <TimePicker Time="{Binding StartTime}" />
+                </VerticalStackLayout>
 
-            <VerticalStackLayout Spacing="8">
-                <Label Text="Длительность" FontAttributes="Bold" />
-                <Stepper Minimum="1"
-                         Maximum="12"
-                         Value="{Binding DurationHours}"
-                         Increment="1" />
-                <Label Text="{Binding DurationHours, StringFormat='Часов: {0}'}"
-                       HorizontalOptions="Center" />
-            </VerticalStackLayout>
+                <VerticalStackLayout Grid.Column="1" Spacing="8">
+                    <Label Text="Окончание" FontAttributes="Bold" />
+                    <TimePicker Time="{Binding EndTime}" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <Label Text="{Binding DurationDisplay}"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center" />
 
             <VerticalStackLayout Spacing="8">
                 <Label Text="Количество SUP" FontAttributes="Bold" />
