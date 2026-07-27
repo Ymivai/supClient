@@ -21,6 +21,7 @@ public class BookingsPageViewModel : ViewModelBase
     int _totalBoards;
     int _occupiedBoards;
     int _availableBoards;
+    int _loadVersion;
 
     public BookingsPageViewModel(
         IBookingService bookingService,
@@ -33,6 +34,7 @@ public class BookingsPageViewModel : ViewModelBase
 
         Bookings = new ObservableCollection<BookingItemViewModel>();
         AddBookingCommand = new Command(async () => await AddBookingAsync());
+        RefreshCommand = new Command(async () => await LoadBookingsAsync());
         PreviousDayCommand = new Command(async () => await ChangeDateAsync(-1));
         NextDayCommand = new Command(async () => await ChangeDateAsync(1));
         TodayCommand = new Command(async () => await SetDateAsync(DateTime.Today));
@@ -100,6 +102,8 @@ public class BookingsPageViewModel : ViewModelBase
 
     public ICommand AddBookingCommand { get; }
 
+    public ICommand RefreshCommand { get; }
+
     public ICommand PreviousDayCommand { get; }
 
     public ICommand NextDayCommand { get; }
@@ -118,14 +122,20 @@ public class BookingsPageViewModel : ViewModelBase
 
     async Task LoadBookingsAsync()
     {
+        var loadVersion = ++_loadVersion;
+
         try
         {
-            var bookings = await _bookingService.GetBookingsByDateAsync(SelectedDate);
-            var referenceTime = GetReferenceTime();
-            var boardUsage = await _bookingService.GetBoardUsageAsync(SelectedDate, referenceTime);
+            var selectedDate = SelectedDate;
+            var bookings = await _bookingService.GetBookingsByDateAsync(selectedDate);
+            var referenceTime = GetReferenceTime(selectedDate);
+            var boardUsage = await _bookingService.GetBoardUsageAsync(selectedDate, referenceTime);
+
+            if (loadVersion != _loadVersion)
+                return;
 
             Bookings.Clear();
-            foreach (var booking in bookings)
+            foreach (var booking in bookings.OrderBy(b => b.StartTime))
             {
                 Bookings.Add(new BookingItemViewModel(booking));
             }
@@ -162,8 +172,14 @@ public class BookingsPageViewModel : ViewModelBase
 
     async Task SetDateAsync(DateTime date)
     {
-        SelectedDate = date.Date;
-        await Task.CompletedTask;
+        var normalizedDate = date.Date;
+        if (SelectedDate == normalizedDate)
+        {
+            await LoadBookingsAsync();
+            return;
+        }
+
+        SelectedDate = normalizedDate;
     }
 
     void OnBookingsChanged(object recipient, BookingsChangedMessage message)
@@ -184,6 +200,6 @@ public class BookingsPageViewModel : ViewModelBase
         DateDisplay = SelectedDate.ToString("dddd, d MMMM yyyy", new System.Globalization.CultureInfo("ru-RU"));
     }
 
-    TimeSpan GetReferenceTime()
-        => SelectedDate.Date == DateTime.Today ? DateTime.Now.TimeOfDay : TimeSpan.Zero;
+    static TimeSpan GetReferenceTime(DateTime selectedDate)
+        => selectedDate.Date == DateTime.Today ? DateTime.Now.TimeOfDay : TimeSpan.Zero;
 }
