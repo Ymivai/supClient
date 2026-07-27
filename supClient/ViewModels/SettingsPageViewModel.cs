@@ -17,6 +17,8 @@ public class SettingsPageViewModel : ViewModelBase
 
     int _totalBoards = Defines.DefaultTotalBoards;
     int _defaultBookingDurationHours = (int)Defines.DefaultBookingDuration.TotalHours;
+    int _weekdayHourlyRate = 300;
+    int _weekendHourlyRate = 350;
 
     public SettingsPageViewModel(
         IAppSettingsService settingsService,
@@ -53,6 +55,26 @@ public class SettingsPageViewModel : ViewModelBase
         }
     }
 
+    public int WeekdayHourlyRate
+    {
+        get => _weekdayHourlyRate;
+        set
+        {
+            if (SetProperty(ref _weekdayHourlyRate, value))
+                (SaveCommand as Command)?.ChangeCanExecute();
+        }
+    }
+
+    public int WeekendHourlyRate
+    {
+        get => _weekendHourlyRate;
+        set
+        {
+            if (SetProperty(ref _weekendHourlyRate, value))
+                (SaveCommand as Command)?.ChangeCanExecute();
+        }
+    }
+
     public ICommand SaveCommand { get; }
 
     public ICommand DeleteAllBookingsCommand { get; }
@@ -69,6 +91,8 @@ public class SettingsPageViewModel : ViewModelBase
             var settings = await _settingsService.GetSettingsAsync();
             TotalBoards = settings.TotalBoards;
             DefaultBookingDurationHours = Math.Max(1, (int)settings.DefaultBookingDuration.TotalHours);
+            WeekdayHourlyRate = Math.Max(1, settings.WeekdayHourlyRate);
+            WeekendHourlyRate = Math.Max(1, settings.WeekendHourlyRate);
         }
         catch (Exception ex)
         {
@@ -83,7 +107,9 @@ public class SettingsPageViewModel : ViewModelBase
             var settings = new AppSettings
             {
                 TotalBoards = TotalBoards,
-                DefaultBookingDuration = TimeSpan.FromHours(DefaultBookingDurationHours)
+                DefaultBookingDuration = TimeSpan.FromHours(DefaultBookingDurationHours),
+                WeekdayHourlyRate = WeekdayHourlyRate,
+                WeekendHourlyRate = WeekendHourlyRate
             };
 
             await _settingsService.SaveSettingsAsync(settings);
@@ -123,5 +149,8 @@ public class SettingsPageViewModel : ViewModelBase
     }
 
     bool CanSave()
-        => TotalBoards > 0 && DefaultBookingDurationHours > 0;
+        => TotalBoards > 0
+           && DefaultBookingDurationHours > 0
+           && WeekdayHourlyRate > 0
+           && WeekendHourlyRate > 0;
 }

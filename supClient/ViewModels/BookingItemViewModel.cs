@@ -4,7 +4,7 @@ namespace supClient.ViewModels;
 
 public class BookingItemViewModel
 {
-    public BookingItemViewModel(Booking booking)
+    public BookingItemViewModel(Booking booking, int hourlyRate)
     {
         Id = booking.Id;
         StartTime = booking.StartTime;
@@ -14,6 +14,7 @@ public class BookingItemViewModel
         PhoneNumber = booking.PhoneNumber ?? string.Empty;
         Comment = booking.Comment ?? string.Empty;
         PaymentMethod = booking.PaymentMethod.ToDisplayName();
+        Revenue = CalculateRevenue(booking, hourlyRate);
         TimeDisplay = $"{StartTime:HH:mm}-{EndTime:HH:mm}";
         BoardsDisplay = $"{BoardsCount} SUP";
         ClientDisplay = string.IsNullOrWhiteSpace(ClientName) ? "Клиент не указан" : ClientName;
@@ -36,6 +37,8 @@ public class BookingItemViewModel
 
     public string PaymentMethod { get; }
 
+    public int Revenue { get; }
+
     public string TimeDisplay { get; }
 
     public string BoardsDisplay { get; }
@@ -46,7 +49,7 @@ public class BookingItemViewModel
 
     string BuildDetailsDisplay()
     {
-        var parts = new List<string> { BoardsDisplay, PaymentMethod };
+        var parts = new List<string> { BoardsDisplay, PaymentMethod, $"{Revenue} грн" };
 
         if (!string.IsNullOrWhiteSpace(PhoneNumber))
             parts.Add(PhoneNumber);
@@ -55,5 +58,14 @@ public class BookingItemViewModel
             parts.Add(Comment);
 
         return string.Join(" | ", parts);
+    }
+
+    static int CalculateRevenue(Booking booking, int hourlyRate)
+    {
+        if (booking.PaymentMethod == Models.PaymentMethod.Unpaid)
+            return 0;
+
+        var amount = booking.BoardsCount * (decimal)booking.Duration.TotalHours * hourlyRate;
+        return (int)Math.Round(amount, MidpointRounding.AwayFromZero);
     }
 }

@@ -39,6 +39,30 @@
                     Text="{Binding DefaultBookingDurationHours, StringFormat='Часов: {0}'}" />
             </VerticalStackLayout>
 
+            <Grid
+                ColumnDefinitions="*,*"
+                ColumnSpacing="12">
+                <VerticalStackLayout Spacing="8">
+                    <Label
+                        FontAttributes="Bold"
+                        Text="Рабочий день, грн/час" />
+                    <Entry
+                        Keyboard="Numeric"
+                        Text="{Binding WeekdayHourlyRate}" />
+                </VerticalStackLayout>
+
+                <VerticalStackLayout
+                    Grid.Column="1"
+                    Spacing="8">
+                    <Label
+                        FontAttributes="Bold"
+                        Text="Выходной, грн/час" />
+                    <Entry
+                        Keyboard="Numeric"
+                        Text="{Binding WeekendHourlyRate}" />
+                </VerticalStackLayout>
+            </Grid>
+
             <Button
                 Command="{Binding SaveCommand}"
                 Text="Сохранить" />

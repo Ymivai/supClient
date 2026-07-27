@@ -16,7 +16,11 @@ public class BookingsPageViewModel : ViewModelBase
 
     DateTime _selectedDate = DateTime.Today;
     string _dateDisplay = string.Empty;
-    string _boardUsageDisplay = string.Empty;
+    string _availableBoardsDisplay = string.Empty;
+    string _cardRevenueDisplay = string.Empty;
+    string _cashRevenueDisplay = string.Empty;
+    string _totalRevenueDisplay = string.Empty;
+    string _adminRevenueDisplay = string.Empty;
     BookingItemViewModel? _selectedBooking;
     int _totalBoards;
     int _occupiedBoards;
@@ -85,10 +89,34 @@ public class BookingsPageViewModel : ViewModelBase
         private set => SetProperty(ref _availableBoards, value);
     }
 
-    public string BoardUsageDisplay
+    public string AvailableBoardsDisplay
     {
-        get => _boardUsageDisplay;
-        private set => SetProperty(ref _boardUsageDisplay, value);
+        get => _availableBoardsDisplay;
+        private set => SetProperty(ref _availableBoardsDisplay, value);
+    }
+
+    public string CardRevenueDisplay
+    {
+        get => _cardRevenueDisplay;
+        private set => SetProperty(ref _cardRevenueDisplay, value);
+    }
+
+    public string CashRevenueDisplay
+    {
+        get => _cashRevenueDisplay;
+        private set => SetProperty(ref _cashRevenueDisplay, value);
+    }
+
+    public string TotalRevenueDisplay
+    {
+        get => _totalRevenueDisplay;
+        private set => SetProperty(ref _totalRevenueDisplay, value);
+    }
+
+    public string AdminRevenueDisplay
+    {
+        get => _adminRevenueDisplay;
+        private set => SetProperty(ref _adminRevenueDisplay, value);
     }
 
     public BookingItemViewModel? SelectedBooking
@@ -138,13 +166,13 @@ public class BookingsPageViewModel : ViewModelBase
             Bookings.Clear();
             foreach (var booking in bookings.OrderBy(b => b.StartTime))
             {
-                Bookings.Add(new BookingItemViewModel(booking));
+                Bookings.Add(new BookingItemViewModel(booking, boardUsage.HourlyRate));
             }
 
             TotalBoards = boardUsage.TotalBoards;
             OccupiedBoards = boardUsage.OccupiedBoards;
             AvailableBoards = boardUsage.AvailableBoards;
-            BoardUsageDisplay = $"Свободно: {AvailableBoards} | Занято: {OccupiedBoards} | Всего: {TotalBoards}";
+            UpdateSummaryDisplays(boardUsage);
         }
         catch (Exception ex)
         {
@@ -203,7 +231,11 @@ public class BookingsPageViewModel : ViewModelBase
             Bookings.Clear();
             OccupiedBoards = 0;
             AvailableBoards = TotalBoards;
-            BoardUsageDisplay = $"Свободно: {AvailableBoards} | Занято: {OccupiedBoards} | Всего: {TotalBoards}";
+            UpdateSummaryDisplays(new BoardUsageResult
+            {
+                TotalBoards = TotalBoards,
+                AvailableBoards = AvailableBoards
+            });
             await LoadBookingsAsync();
         });
     }
@@ -211,6 +243,15 @@ public class BookingsPageViewModel : ViewModelBase
     void UpdateDateDisplay()
     {
         DateDisplay = SelectedDate.ToString("dddd, d MMMM yyyy", new System.Globalization.CultureInfo("ru-RU"));
+    }
+
+    void UpdateSummaryDisplays(BoardUsageResult boardUsage)
+    {
+        AvailableBoardsDisplay = $"Свободно: {boardUsage.AvailableBoards}";
+        CardRevenueDisplay = $"Карт: {boardUsage.CardRevenue} грн";
+        CashRevenueDisplay = $"Готівка: {boardUsage.CashRevenue} грн";
+        TotalRevenueDisplay = $"Всього: {boardUsage.TotalRevenue} грн";
+        AdminRevenueDisplay = $"Адміну: {boardUsage.AdminRevenue} грн";
     }
 
     static TimeSpan GetReferenceTime(DateTime selectedDate)

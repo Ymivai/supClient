@@ -39,13 +39,29 @@ public class BookingService : IBookingService
             .Where(b => b.StartTime <= referenceDateTime && b.EndTime > referenceDateTime)
             .Sum(b => b.BoardsCount);
         var availableBoards = Math.Max(0, settings.TotalBoards - occupiedBoards);
+        var hourlyRate = GetHourlyRate(date, settings);
+        var cardRevenue = bookings
+            .Where(b => b.PaymentMethod is PaymentMethod.Card or PaymentMethod.Transfer)
+            .Sum(b => CalculateBookingRevenue(b, hourlyRate));
+        var cashRevenue = bookings
+            .Where(b => b.PaymentMethod == PaymentMethod.Cash)
+            .Sum(b => CalculateBookingRevenue(b, hourlyRate));
+        var otherRevenue = bookings
+            .Where(b => b.PaymentMethod == PaymentMethod.Other)
+            .Sum(b => CalculateBookingRevenue(b, hourlyRate));
+        var totalRevenue = cardRevenue + cashRevenue + otherRevenue;
 
         return new BoardUsageResult
         {
             TotalBoards = settings.TotalBoards,
             OccupiedBoards = occupiedBoards,
             AvailableBoards = availableBoards,
-            ReferenceTime = referenceTime
+            ReferenceTime = referenceTime,
+            HourlyRate = hourlyRate,
+            CardRevenue = cardRevenue,
+            CashRevenue = cashRevenue,
+            TotalRevenue = totalRevenue,
+            AdminRevenue = CalculateAdminRevenue(totalRevenue)
         };
     }
 
@@ -116,4 +132,24 @@ public class BookingService : IBookingService
 
         return string.Empty;
     }
+
+    static int GetHourlyRate(DateTime date, AppSettings settings)
+        => IsWeekend(date)
+            ? settings.WeekendHourlyRate
+            : settings.WeekdayHourlyRate;
+
+    static bool IsWeekend(DateTime date)
+        => date.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday;
+
+    static int CalculateBookingRevenue(Booking booking, int hourlyRate)
+    {
+        if (booking.PaymentMethod == PaymentMethod.Unpaid)
+            return 0;
+
+        var amount = booking.BoardsCount * (decimal)booking.Duration.TotalHours * hourlyRate;
+        return (int)Math.Round(amount, MidpointRounding.AwayFromZero);
+    }
+
+    static int CalculateAdminRevenue(int totalRevenue)
+        => (int)Math.Round(totalRevenue * 0.2m, MidpointRounding.AwayFromZero);
 }
