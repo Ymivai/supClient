@@ -7,7 +7,8 @@ public class NavigationService : INavigationService
     readonly IServiceProvider _services;
 
     static INavigation? Navigation =>
-        Application.Current?.Windows.FirstOrDefault()?.Page?.Navigation;
+        Shell.Current?.Navigation
+        ?? Application.Current?.Windows.FirstOrDefault()?.Page?.Navigation;
 
     public NavigationService(IServiceProvider services)
     {
@@ -17,12 +18,16 @@ public class NavigationService : INavigationService
     public async Task NavigateToPage<T>(object? parameter = null, bool animated = true) where T : Page
     {
         var page = _services.GetRequiredService<T>();
+        var navigation = Navigation;
+
+        if (navigation is null)
+            return;
 
         if (page.BindingContext is ViewModelBase navigatingVm)
             await navigatingVm.OnNavigatingTo(parameter);
 
         await MainThread.InvokeOnMainThreadAsync(async () =>
-            await Navigation!.PushAsync(page, animated));
+            await navigation.PushAsync(page, animated));
 
         if (page.BindingContext is ViewModelBase navigatedVm)
             await navigatedVm.OnNavigatedTo();
@@ -30,18 +35,23 @@ public class NavigationService : INavigationService
 
     public async Task NavigateBack(bool animated = true)
     {
-        if (Navigation?.NavigationStack.Count <= 1)
+        var navigation = Navigation;
+
+        if (navigation is null || navigation.NavigationStack.Count <= 1)
             return;
 
-        var currentPage = Navigation!.NavigationStack[^1];
+        var currentPage = navigation.NavigationStack[^1];
 
         if (currentPage.BindingContext is ViewModelBase closingVm)
             await closingVm.OnClosing();
 
         await MainThread.InvokeOnMainThreadAsync(async () =>
-            await Navigation.PopAsync(animated));
+            await navigation.PopAsync(animated));
 
-        var returnedPage = Navigation.NavigationStack[^1];
+        if (navigation.NavigationStack.Count == 0)
+            return;
+
+        var returnedPage = navigation.NavigationStack[^1];
         if (returnedPage.BindingContext is ViewModelBase returnedVm)
             await returnedVm.OnReturnedTo();
     }

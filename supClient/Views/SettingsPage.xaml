@@ -1,48 +1,61 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:vm="clr-namespace:supClient.ViewModels"
-             x:Class="supClient.Views.SettingsPage"
-             x:DataType="vm:SettingsPageViewModel"
-             Title="Настройки">
+<ContentPage
+    x:Class="supClient.Views.SettingsPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:supClient.ViewModels"
+    Title="Настройки"
+    x:DataType="vm:SettingsPageViewModel">
 
     <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="24">
+        <VerticalStackLayout
+            Padding="20"
+            Spacing="24">
             <VerticalStackLayout Spacing="8">
-                <Label Text="Количество SUP-досок"
-                       FontAttributes="Bold" />
-                <Stepper Minimum="1"
-                         Maximum="100"
-                         Value="{Binding TotalBoards}"
-                         Increment="1" />
-                <Label Text="{Binding TotalBoards, StringFormat='Всего досок: {0}'}"
-                       HorizontalOptions="Center" />
+                <Label
+                    FontAttributes="Bold"
+                    Text="Количество SUP-досок" />
+                <Stepper
+                    Increment="1"
+                    Maximum="100"
+                    Minimum="1"
+                    Value="{Binding TotalBoards}" />
+                <Label
+                    HorizontalOptions="Center"
+                    Text="{Binding TotalBoards, StringFormat='Всего досок: {0}'}" />
             </VerticalStackLayout>
 
             <VerticalStackLayout Spacing="8">
-                <Label Text="Длительность брони по умолчанию"
-                       FontAttributes="Bold" />
-                <Stepper Minimum="1"
-                         Maximum="12"
-                         Value="{Binding DefaultBookingDurationHours}"
-                         Increment="1" />
-                <Label Text="{Binding DefaultBookingDurationHours, StringFormat='Часов: {0}'}"
-                       HorizontalOptions="Center" />
+                <Label
+                    FontAttributes="Bold"
+                    Text="Длительность брони по умолчанию" />
+                <Stepper
+                    Increment="1"
+                    Maximum="12"
+                    Minimum="1"
+                    Value="{Binding DefaultBookingDurationHours}" />
+                <Label
+                    HorizontalOptions="Center"
+                    Text="{Binding DefaultBookingDurationHours, StringFormat='Часов: {0}'}" />
             </VerticalStackLayout>
 
-            <Button Text="Сохранить"
-                    Command="{Binding SaveCommand}" />
+            <Button
+                Command="{Binding SaveCommand}"
+                Text="Сохранить" />
 
-            <BoxView HeightRequest="1"
-                     Color="{StaticResource Gray200}" />
+            <BoxView
+                HeightRequest="1"
+                Color="Gray" />
 
             <VerticalStackLayout Spacing="8">
-                <Label Text="Локальные данные"
-                       FontAttributes="Bold" />
-                <Button Text="Удалить все брони"
-                        Command="{Binding DeleteAllBookingsCommand}"
-                        BackgroundColor="#B3261E"
-                        TextColor="White" />
+                <Label
+                    FontAttributes="Bold"
+                    Text="Локальные данные" />
+                <Button
+                    BackgroundColor="#B3261E"
+                    Command="{Binding DeleteAllBookingsCommand}"
+                    Text="Удалить все брони"
+                    TextColor="White" />
             </VerticalStackLayout>
         </VerticalStackLayout>
     </ScrollView>

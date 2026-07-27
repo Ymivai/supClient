@@ -40,7 +40,7 @@
         <Border
             Grid.Row="1"
             Padding="14,10"
-            Stroke="{StaticResource Gray200}"
+            Stroke="Gray"
             StrokeThickness="1">
             <Border.StrokeShape>
                 <RoundRectangle CornerRadius="8" />
@@ -52,8 +52,8 @@
                     Text="{Binding BoardUsageDisplay}" />
                 <Button
                     Grid.Column="1"
-                    Command="{Binding TodayCommand}"
                     Padding="12,4"
+                    Command="{Binding TodayCommand}"
                     Text="Сегодня" />
             </Grid>
         </Border>
@@ -78,7 +78,7 @@
                     <Border
                         Margin="0,0,0,8"
                         Padding="16,12"
-                        Stroke="{StaticResource Gray200}"
+                        Stroke="Gray"
                         StrokeThickness="1">
                         <Border.StrokeShape>
                             <RoundRectangle CornerRadius="8" />
