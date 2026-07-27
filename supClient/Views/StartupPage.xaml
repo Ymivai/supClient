@@ -12,7 +12,7 @@
             x:Name="BackgroundImage"
             Aspect="AspectFill"
             Opacity="0.32"
-            Source="startup_background.png" />
+            Source="startup_background.jpeg" />
 
         <BoxView
             x:Name="WaveGlow"
