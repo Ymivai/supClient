@@ -34,27 +34,18 @@
             Spacing="18"
             VerticalOptions="Center">
             <Border
-                Padding="22,18"
+                Padding="16"
                 BackgroundColor="#183FFFFFFF"
                 Stroke="#66D7FFF4"
                 StrokeThickness="1">
                 <Border.StrokeShape>
                     <RoundRectangle CornerRadius="8" />
                 </Border.StrokeShape>
-                <VerticalStackLayout Spacing="4">
-                    <Label
-                        FontAttributes="Bold"
-                        FontSize="54"
-                        HorizontalTextAlignment="Center"
-                        Text="{localization:Localization Title.AppShortName}"
-                        TextColor="White" />
-                    <Label
-                        FontAttributes="Bold"
-                        FontSize="13"
-                        HorizontalTextAlignment="Center"
-                        Text="{localization:Localization Title.AppFullName}"
-                        TextColor="#D7FFF4" />
-                </VerticalStackLayout>
+                <Image
+                    Aspect="AspectFit"
+                    HeightRequest="160"
+                    Source="startup_logo.jpeg"
+                    WidthRequest="160" />
             </Border>
 
             <ActivityIndicator

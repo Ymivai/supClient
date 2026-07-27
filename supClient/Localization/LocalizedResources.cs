@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using System.Globalization;
+using System.Reflection;
 using System.Resources;
-using supClient.Resources.Resx;
 
 namespace supClient.Localization;
 
@@ -33,7 +33,7 @@ public class LocalizedResources : INotifyPropertyChanged
     static LocalizedResources()
     {
         DefaultCultureInfo = CultureInfo.CurrentUICulture;
-        ResourceManager = new ResourceManager(typeof(AppResources));
+        ResourceManager = new ResourceManager("supClient.Resources.Resx.AppResources", Assembly.GetExecutingAssembly());
     }
 
     protected LocalizedResources()
@@ -44,7 +44,7 @@ public class LocalizedResources : INotifyPropertyChanged
     public event PropertyChangedEventHandler? PropertyChanged;
 
     static CultureInfo NormalizeCulture(CultureInfo cultureInfo)
-        => cultureInfo.TwoLetterISOLanguageName == "uk"
+        => cultureInfo.TwoLetterISOLanguageName == "ru"
             ? new CultureInfo("ru")
             : new CultureInfo("uk");
 }
