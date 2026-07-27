@@ -68,6 +68,11 @@
             <VerticalStackLayout Spacing="12">
                 <Button Text="Сохранить"
                         Command="{Binding SaveCommand}" />
+                <Button Text="Удалить бронь"
+                        Command="{Binding DeleteCommand}"
+                        IsVisible="{Binding IsEditing}"
+                        BackgroundColor="#B3261E"
+                        TextColor="White" />
                 <Button Text="Отмена"
                         Command="{Binding CancelCommand}"
                         BackgroundColor="{StaticResource Gray300}"

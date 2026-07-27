@@ -27,6 +27,7 @@ public class AddBookingPageViewModel : ViewModelBase
     string _comment = string.Empty;
     int _selectedPaymentMethodIndex;
     string _pageTitle = "Новая бронь";
+    bool _isEditing;
 
     public AddBookingPageViewModel(
         IBookingService bookingService,
@@ -47,6 +48,7 @@ public class AddBookingPageViewModel : ViewModelBase
             .ToList();
 
         SaveCommand = new Command(async () => await SaveAsync(), CanSave);
+        DeleteCommand = new Command(async () => await DeleteAsync(), () => IsEditing);
         CancelCommand = new Command(async () => await CancelAsync());
     }
 
@@ -56,6 +58,16 @@ public class AddBookingPageViewModel : ViewModelBase
     {
         get => _pageTitle;
         private set => SetProperty(ref _pageTitle, value);
+    }
+
+    public bool IsEditing
+    {
+        get => _isEditing;
+        private set
+        {
+            if (SetProperty(ref _isEditing, value))
+                (DeleteCommand as Command)?.ChangeCanExecute();
+        }
     }
 
     public DateTime BookingDate
@@ -120,6 +132,8 @@ public class AddBookingPageViewModel : ViewModelBase
 
     public ICommand SaveCommand { get; }
 
+    public ICommand DeleteCommand { get; }
+
     public ICommand CancelCommand { get; }
 
     public override async Task OnNavigatingTo(object? parameter)
@@ -131,6 +145,7 @@ public class AddBookingPageViewModel : ViewModelBase
         }
 
         PageTitle = "Новая бронь";
+        IsEditing = false;
         _editingBookingId = null;
         _originalBookingDate = null;
 
@@ -152,6 +167,7 @@ public class AddBookingPageViewModel : ViewModelBase
         }
 
         PageTitle = "Редактировать бронь";
+        IsEditing = true;
         _editingBookingId = booking.Id;
         _originalBookingDate = booking.StartTime.Date;
         BookingDate = booking.StartTime.Date;
@@ -203,6 +219,33 @@ public class AddBookingPageViewModel : ViewModelBase
         {
             _logger.LogError(ex, "Failed to save booking");
             await _dialogService.DisplayAlertAsync("Ошибка", "Не удалось сохранить бронирование.");
+        }
+    }
+
+    async Task DeleteAsync()
+    {
+        if (!_editingBookingId.HasValue)
+            return;
+
+        try
+        {
+            var confirmed = await _dialogService.DisplayConfirmationAsync(
+                "Удалить бронь?",
+                "Это действие удалит выбранную бронь без возможности отмены.",
+                "Удалить",
+                "Отмена");
+
+            if (!confirmed)
+                return;
+
+            await _bookingService.DeleteBookingAsync(_editingBookingId.Value);
+            WeakReferenceMessenger.Default.Send(new BookingsChangedMessage(_originalBookingDate ?? BookingDate));
+            await _navigationService.NavigateBack();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to delete booking {BookingId}", _editingBookingId);
+            await _dialogService.DisplayAlertAsync("Ошибка", "Не удалось удалить бронирование.");
         }
     }
 
