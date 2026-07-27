@@ -41,6 +41,7 @@ public class NavigationService : INavigationService
             return;
 
         var currentPage = navigation.NavigationStack[^1];
+        var returnedPage = navigation.NavigationStack[^2];
 
         if (currentPage.BindingContext is ViewModelBase closingVm)
             await closingVm.OnClosing();
@@ -48,11 +49,7 @@ public class NavigationService : INavigationService
         await MainThread.InvokeOnMainThreadAsync(async () =>
             await navigation.PopAsync(animated));
 
-        if (navigation.NavigationStack.Count == 0)
-            return;
-
-        var returnedPage = navigation.NavigationStack[^1];
-        if (returnedPage.BindingContext is ViewModelBase returnedVm)
+        if (returnedPage?.BindingContext is ViewModelBase returnedVm)
             await returnedVm.OnReturnedTo();
     }
 }

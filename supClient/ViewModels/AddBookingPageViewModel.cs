@@ -213,7 +213,7 @@ public class AddBookingPageViewModel : ViewModelBase
                 WeakReferenceMessenger.Default.Send(new BookingsChangedMessage(_originalBookingDate.Value));
 
             WeakReferenceMessenger.Default.Send(new BookingsChangedMessage(BookingDate));
-            await _navigationService.NavigateBack();
+            await NavigateBackAfterSuccessfulChangeAsync();
         }
         catch (Exception ex)
         {
@@ -240,7 +240,7 @@ public class AddBookingPageViewModel : ViewModelBase
 
             await _bookingService.DeleteBookingAsync(_editingBookingId.Value);
             WeakReferenceMessenger.Default.Send(new BookingsChangedMessage(_originalBookingDate ?? BookingDate));
-            await _navigationService.NavigateBack();
+            await NavigateBackAfterSuccessfulChangeAsync();
         }
         catch (Exception ex)
         {
@@ -258,5 +258,17 @@ public class AddBookingPageViewModel : ViewModelBase
         => BoardsCount > 0
            && DurationHours > 0
            && !string.IsNullOrWhiteSpace(ClientName);
+
+    async Task NavigateBackAfterSuccessfulChangeAsync()
+    {
+        try
+        {
+            await _navigationService.NavigateBack();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Booking was changed but navigation back failed");
+        }
+    }
 
 }

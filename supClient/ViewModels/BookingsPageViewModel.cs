@@ -198,7 +198,14 @@ public class BookingsPageViewModel : ViewModelBase
 
     void OnAllBookingsDeleted(object recipient, AllBookingsDeletedMessage message)
     {
-        MainThread.BeginInvokeOnMainThread(async () => await LoadBookingsAsync());
+        MainThread.BeginInvokeOnMainThread(async () =>
+        {
+            Bookings.Clear();
+            OccupiedBoards = 0;
+            AvailableBoards = TotalBoards;
+            BoardUsageDisplay = $"Свободно: {AvailableBoards} | Занято: {OccupiedBoards} | Всего: {TotalBoards}";
+            await LoadBookingsAsync();
+        });
     }
 
     void UpdateDateDisplay()
