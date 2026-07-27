@@ -1,10 +1,27 @@
-﻿namespace supClient
+﻿using supClient.Views;
+
+namespace supClient;
+
+public partial class AppShell : Shell
 {
-    public partial class AppShell : Shell
+    public AppShell(BookingsPage bookingsPage, SettingsPage settingsPage)
     {
-        public AppShell()
+        InitializeComponent();
+
+        MainTabBar.Items.Add(new ShellContent
         {
-            InitializeComponent();
-        }
+            Title = "Брони",
+            Content = bookingsPage,
+            Route = "BookingsPage"
+        });
+
+        MainTabBar.Items.Add(new ShellContent
+        {
+            Title = "Настройки",
+            Content = settingsPage,
+            Route = "SettingsPage"
+        });
+
+        Routing.RegisterRoute(nameof(AddBookingPage), typeof(AddBookingPage));
     }
 }
