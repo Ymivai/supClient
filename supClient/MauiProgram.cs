@@ -34,6 +34,7 @@ public static class MauiProgram
     {
         services.AddSingleton<IBookingRepository, JsonBookingRepository>();
         services.AddSingleton<IAppSettingsService, AppSettingsService>();
+        services.AddSingleton<IBookingService, BookingService>();
         services.AddSingleton<IBookingAvailabilityService, BookingAvailabilityService>();
         services.AddSingleton<INavigationService, NavigationService>();
         services.AddSingleton<IDialogService, DialogService>();

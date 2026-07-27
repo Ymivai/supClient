@@ -4,14 +4,13 @@ using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.Logging;
 using supClient.Messages;
 using supClient.Services;
-using supClient.Storage;
 using supClient.Views;
 
 namespace supClient.ViewModels;
 
 public class BookingsPageViewModel : ViewModelBase
 {
-    readonly IBookingRepository _bookingRepository;
+    readonly IBookingService _bookingService;
     readonly INavigationService _navigationService;
     readonly ILogger<BookingsPageViewModel> _logger;
 
@@ -19,11 +18,11 @@ public class BookingsPageViewModel : ViewModelBase
     string _dateDisplay = string.Empty;
 
     public BookingsPageViewModel(
-        IBookingRepository bookingRepository,
+        IBookingService bookingService,
         INavigationService navigationService,
         ILogger<BookingsPageViewModel> logger)
     {
-        _bookingRepository = bookingRepository;
+        _bookingService = bookingService;
         _navigationService = navigationService;
         _logger = logger;
 
@@ -71,7 +70,7 @@ public class BookingsPageViewModel : ViewModelBase
     {
         try
         {
-            var bookings = await _bookingRepository.GetBookingsByDateAsync(SelectedDate);
+            var bookings = await _bookingService.GetBookingsByDateAsync(SelectedDate);
 
             Bookings.Clear();
             foreach (var booking in bookings)

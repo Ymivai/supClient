@@ -10,8 +10,7 @@ namespace supClient.ViewModels;
 
 public class AddBookingPageViewModel : ViewModelBase
 {
-    readonly IBookingRepository _bookingRepository;
-    readonly IBookingAvailabilityService _availabilityService;
+    readonly IBookingService _bookingService;
     readonly IAppSettingsService _settingsService;
     readonly INavigationService _navigationService;
     readonly IDialogService _dialogService;
@@ -22,15 +21,13 @@ public class AddBookingPageViewModel : ViewModelBase
     int _boardsCount = 1;
 
     public AddBookingPageViewModel(
-        IBookingRepository bookingRepository,
-        IBookingAvailabilityService availabilityService,
+        IBookingService bookingService,
         IAppSettingsService settingsService,
         INavigationService navigationService,
         IDialogService dialogService,
         ILogger<AddBookingPageViewModel> logger)
     {
-        _bookingRepository = bookingRepository;
-        _availabilityService = availabilityService;
+        _bookingService = bookingService;
         _settingsService = settingsService;
         _navigationService = navigationService;
         _dialogService = dialogService;
@@ -81,13 +78,6 @@ public class AddBookingPageViewModel : ViewModelBase
             var startDateTime = BookingDate.Date.Add(StartTime);
             var settings = await _settingsService.GetSettingsAsync();
             var duration = settings.DefaultBookingDuration;
-            var result = await _availabilityService.CheckAvailabilityAsync(startDateTime, BoardsCount, duration);
-
-            if (!result.IsAvailable)
-            {
-                await _dialogService.DisplayAlertAsync("Невозможно сохранить", result.GetUnavailableMessage());
-                return;
-            }
 
             var now = DateTime.Now;
             var booking = new Booking
@@ -99,7 +89,13 @@ public class AddBookingPageViewModel : ViewModelBase
                 UpdatedAt = now
             };
 
-            await _bookingRepository.AddBookingAsync(booking);
+            var result = await _bookingService.CreateBookingAsync(booking);
+            if (!result.IsSuccess)
+            {
+                await _dialogService.DisplayAlertAsync("Невозможно сохранить", result.ErrorMessage);
+                return;
+            }
+
             WeakReferenceMessenger.Default.Send(new BookingsChangedMessage(BookingDate));
 
             await _navigationService.NavigateBack();
