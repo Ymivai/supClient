@@ -13,7 +13,7 @@ public class BookingItemViewModel
         ClientName = booking.ClientName;
         PhoneNumber = booking.PhoneNumber ?? string.Empty;
         Comment = booking.Comment ?? string.Empty;
-        PaymentMethod = GetPaymentMethodDisplay(booking.PaymentMethod);
+        PaymentMethod = booking.PaymentMethod.ToDisplayName();
         TimeDisplay = $"{StartTime:HH:mm}-{EndTime:HH:mm}";
         BoardsDisplay = $"{BoardsCount} SUP";
         ClientDisplay = string.IsNullOrWhiteSpace(ClientName) ? "Клиент не указан" : ClientName;
@@ -56,14 +56,4 @@ public class BookingItemViewModel
 
         return string.Join(" | ", parts);
     }
-
-    static string GetPaymentMethodDisplay(PaymentMethod paymentMethod)
-        => paymentMethod switch
-        {
-            Models.PaymentMethod.Cash => "Наличные",
-            Models.PaymentMethod.Card => "Карта",
-            Models.PaymentMethod.Transfer => "Перевод",
-            Models.PaymentMethod.Other => "Другое",
-            _ => "Не оплачено"
-        };
 }

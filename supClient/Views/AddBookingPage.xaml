@@ -53,15 +53,8 @@
 
             <VerticalStackLayout Spacing="8">
                 <Label Text="Способ оплаты" FontAttributes="Bold" />
-                <Picker SelectedIndex="{Binding SelectedPaymentMethodIndex}">
-                    <Picker.Items>
-                        <x:String>Не оплачено</x:String>
-                        <x:String>Наличные</x:String>
-                        <x:String>Карта</x:String>
-                        <x:String>Перевод</x:String>
-                        <x:String>Другое</x:String>
-                    </Picker.Items>
-                </Picker>
+                <Picker ItemsSource="{Binding PaymentMethodNames}"
+                        SelectedIndex="{Binding SelectedPaymentMethodIndex}" />
             </VerticalStackLayout>
 
             <VerticalStackLayout Spacing="8">

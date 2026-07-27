@@ -41,9 +41,16 @@ public class AddBookingPageViewModel : ViewModelBase
         _dialogService = dialogService;
         _logger = logger;
 
+        PaymentMethodNames = Enum.GetValues<PaymentMethod>()
+            .OrderBy(m => m.ToSelectionIndex())
+            .Select(m => m.ToDisplayName())
+            .ToList();
+
         SaveCommand = new Command(async () => await SaveAsync(), CanSave);
         CancelCommand = new Command(async () => await CancelAsync());
     }
+
+    public IReadOnlyList<string> PaymentMethodNames { get; }
 
     public string PageTitle
     {
@@ -154,7 +161,7 @@ public class AddBookingPageViewModel : ViewModelBase
         ClientName = booking.ClientName;
         PhoneNumber = booking.PhoneNumber ?? string.Empty;
         Comment = booking.Comment ?? string.Empty;
-        SelectedPaymentMethodIndex = GetPaymentMethodIndex(booking.PaymentMethod);
+        SelectedPaymentMethodIndex = booking.PaymentMethod.ToSelectionIndex();
     }
 
     async Task SaveAsync()
@@ -171,7 +178,7 @@ public class AddBookingPageViewModel : ViewModelBase
                 ClientName = ClientName.Trim(),
                 PhoneNumber = string.IsNullOrWhiteSpace(PhoneNumber) ? null : PhoneNumber.Trim(),
                 Comment = string.IsNullOrWhiteSpace(Comment) ? null : Comment.Trim(),
-                PaymentMethod = GetSelectedPaymentMethod(),
+                PaymentMethod = PaymentMethodExtensions.FromSelectionIndex(SelectedPaymentMethodIndex),
                 CreatedAt = now,
                 UpdatedAt = now
             };
@@ -209,23 +216,4 @@ public class AddBookingPageViewModel : ViewModelBase
            && DurationHours > 0
            && !string.IsNullOrWhiteSpace(ClientName);
 
-    PaymentMethod GetSelectedPaymentMethod()
-        => SelectedPaymentMethodIndex switch
-        {
-            1 => PaymentMethod.Cash,
-            2 => PaymentMethod.Card,
-            3 => PaymentMethod.Transfer,
-            4 => PaymentMethod.Other,
-            _ => PaymentMethod.Unpaid
-        };
-
-    static int GetPaymentMethodIndex(PaymentMethod paymentMethod)
-        => paymentMethod switch
-        {
-            PaymentMethod.Cash => 1,
-            PaymentMethod.Card => 2,
-            PaymentMethod.Transfer => 3,
-            PaymentMethod.Other => 4,
-            _ => 0
-        };
 }
