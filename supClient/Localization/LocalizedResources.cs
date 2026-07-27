@@ -1,14 +1,15 @@
 using System.ComponentModel;
 using System.Globalization;
-using System.Reflection;
 using System.Resources;
 
 namespace supClient.Localization;
 
 public class LocalizedResources : INotifyPropertyChanged
 {
-    static readonly CultureInfo DefaultCultureInfo;
-    static readonly ResourceManager ResourceManager;
+    static readonly CultureInfo DefaultCultureInfo = CultureInfo.CurrentUICulture;
+    static readonly ResourceManager ResourceManager = new(
+        "supClient.Resources.Resx.AppResources",
+        typeof(LocalizedResources).Assembly);
 
     CultureInfo _currentCultureInfo = new("uk");
 
@@ -29,12 +30,6 @@ public class LocalizedResources : INotifyPropertyChanged
 
     public string this[string key]
         => ResourceManager.GetString(key, CurrentCultureInfo) ?? key;
-
-    static LocalizedResources()
-    {
-        DefaultCultureInfo = CultureInfo.CurrentUICulture;
-        ResourceManager = new ResourceManager("supClient.Resources.Resx.AppResources", Assembly.GetExecutingAssembly());
-    }
 
     protected LocalizedResources()
     {
