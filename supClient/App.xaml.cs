@@ -1,5 +1,3 @@
-using supClient.Views;
-
 namespace supClient;
 
 public partial class App : Application
@@ -13,5 +11,5 @@ public partial class App : Application
     }
 
     protected override Window CreateWindow(IActivationState? activationState)
-        => new(new StartupPage(_appShell));
+        => new(_appShell);
 }
