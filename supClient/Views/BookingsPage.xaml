@@ -4,22 +4,62 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:vm="clr-namespace:supClient.ViewModels"
-    Title="SupClient"
+    Title="Брони"
     x:DataType="vm:BookingsPageViewModel">
 
     <Grid
         Padding="20"
-        RowDefinitions="Auto,*,Auto"
+        RowDefinitions="Auto,Auto,*,Auto"
         RowSpacing="16">
-        <Label
+        <Grid
             Grid.Row="0"
-            FontAttributes="Bold"
-            FontSize="20"
-            HorizontalOptions="Center"
-            Text="{Binding DateDisplay}" />
+            ColumnDefinitions="Auto,*,Auto"
+            ColumnSpacing="12">
+            <Button
+                Grid.Column="0"
+                Command="{Binding PreviousDayCommand}"
+                Text="‹" />
+            <VerticalStackLayout
+                Grid.Column="1"
+                Spacing="8">
+                <Label
+                    FontAttributes="Bold"
+                    FontSize="20"
+                    HorizontalOptions="Center"
+                    Text="{Binding DateDisplay}" />
+                <DatePicker
+                    Date="{Binding SelectedDate}"
+                    HorizontalOptions="Center" />
+            </VerticalStackLayout>
+            <Button
+                Grid.Column="2"
+                Command="{Binding NextDayCommand}"
+                Text="›" />
+        </Grid>
+
+        <Border
+            Grid.Row="1"
+            Padding="14,10"
+            Stroke="{StaticResource Gray200}"
+            StrokeThickness="1">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="8" />
+            </Border.StrokeShape>
+            <Grid ColumnDefinitions="*,Auto">
+                <Label
+                    Grid.Column="0"
+                    FontAttributes="Bold"
+                    Text="{Binding BoardUsageDisplay}" />
+                <Button
+                    Grid.Column="1"
+                    Command="{Binding TodayCommand}"
+                    Padding="12,4"
+                    Text="Сегодня" />
+            </Grid>
+        </Border>
 
         <CollectionView
-            Grid.Row="1"
+            Grid.Row="2"
             ItemsSource="{Binding Bookings}"
             SelectionMode="None">
             <CollectionView.EmptyView>
@@ -28,7 +68,7 @@
                     VerticalOptions="Center">
                     <Label
                         HorizontalOptions="Center"
-                        Text="На сегодня броней нет"
+                        Text="На выбранную дату броней нет"
                         TextColor="Gray" />
                 </VerticalStackLayout>
             </CollectionView.EmptyView>
@@ -42,16 +82,34 @@
                         <Border.StrokeShape>
                             <RoundRectangle CornerRadius="8" />
                         </Border.StrokeShape>
-                        <Label
-                            FontSize="16"
-                            Text="{Binding DisplayText}" />
+                        <Grid
+                            ColumnDefinitions="Auto,*"
+                            ColumnSpacing="14"
+                            RowDefinitions="Auto,Auto">
+                            <Label
+                                Grid.RowSpan="2"
+                                FontAttributes="Bold"
+                                FontSize="16"
+                                Text="{Binding TimeDisplay}" />
+                            <Label
+                                Grid.Column="1"
+                                FontAttributes="Bold"
+                                FontSize="16"
+                                Text="{Binding ClientDisplay}" />
+                            <Label
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                FontSize="13"
+                                Text="{Binding DetailsDisplay}"
+                                TextColor="Gray" />
+                        </Grid>
                     </Border>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
 
         <Button
-            Grid.Row="2"
+            Grid.Row="3"
             Command="{Binding AddBookingCommand}"
             HorizontalOptions="Fill"
             Text="Добавить бронь" />

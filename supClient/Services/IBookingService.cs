@@ -8,6 +8,8 @@ public interface IBookingService
 
     Task<Booking?> GetBookingByIdAsync(Guid id);
 
+    Task<BoardUsageResult> GetBoardUsageAsync(DateTime date, TimeSpan referenceTime);
+
     Task<BookingSaveResult> CreateBookingAsync(Booking booking);
 
     Task<BookingSaveResult> UpdateBookingAsync(Booking booking);

@@ -16,6 +16,10 @@ public class BookingsPageViewModel : ViewModelBase
 
     DateTime _selectedDate = DateTime.Today;
     string _dateDisplay = string.Empty;
+    string _boardUsageDisplay = string.Empty;
+    int _totalBoards;
+    int _occupiedBoards;
+    int _availableBoards;
 
     public BookingsPageViewModel(
         IBookingService bookingService,
@@ -28,6 +32,9 @@ public class BookingsPageViewModel : ViewModelBase
 
         Bookings = new ObservableCollection<BookingItemViewModel>();
         AddBookingCommand = new Command(async () => await AddBookingAsync());
+        PreviousDayCommand = new Command(async () => await ChangeDateAsync(-1));
+        NextDayCommand = new Command(async () => await ChangeDateAsync(1));
+        TodayCommand = new Command(async () => await SetDateAsync(DateTime.Today));
 
         UpdateDateDisplay();
         WeakReferenceMessenger.Default.Register<BookingsChangedMessage>(this, OnBookingsChanged);
@@ -41,9 +48,11 @@ public class BookingsPageViewModel : ViewModelBase
         get => _selectedDate;
         set
         {
-            if (SetProperty(ref _selectedDate, value))
+            var date = value.Date;
+            if (SetProperty(ref _selectedDate, date))
             {
                 UpdateDateDisplay();
+                MainThread.BeginInvokeOnMainThread(async () => await LoadBookingsAsync());
             }
         }
     }
@@ -54,7 +63,37 @@ public class BookingsPageViewModel : ViewModelBase
         private set => SetProperty(ref _dateDisplay, value);
     }
 
+    public int TotalBoards
+    {
+        get => _totalBoards;
+        private set => SetProperty(ref _totalBoards, value);
+    }
+
+    public int OccupiedBoards
+    {
+        get => _occupiedBoards;
+        private set => SetProperty(ref _occupiedBoards, value);
+    }
+
+    public int AvailableBoards
+    {
+        get => _availableBoards;
+        private set => SetProperty(ref _availableBoards, value);
+    }
+
+    public string BoardUsageDisplay
+    {
+        get => _boardUsageDisplay;
+        private set => SetProperty(ref _boardUsageDisplay, value);
+    }
+
     public ICommand AddBookingCommand { get; }
+
+    public ICommand PreviousDayCommand { get; }
+
+    public ICommand NextDayCommand { get; }
+
+    public ICommand TodayCommand { get; }
 
     public override async Task OnNavigatedTo()
     {
@@ -71,15 +110,19 @@ public class BookingsPageViewModel : ViewModelBase
         try
         {
             var bookings = await _bookingService.GetBookingsByDateAsync(SelectedDate);
+            var referenceTime = GetReferenceTime();
+            var boardUsage = await _bookingService.GetBoardUsageAsync(SelectedDate, referenceTime);
 
             Bookings.Clear();
             foreach (var booking in bookings)
             {
-                Bookings.Add(new BookingItemViewModel(
-                    booking.StartTime,
-                    booking.EndTime,
-                    booking.BoardsCount));
+                Bookings.Add(new BookingItemViewModel(booking));
             }
+
+            TotalBoards = boardUsage.TotalBoards;
+            OccupiedBoards = boardUsage.OccupiedBoards;
+            AvailableBoards = boardUsage.AvailableBoards;
+            BoardUsageDisplay = $"Свободно: {AvailableBoards} | Занято: {OccupiedBoards} | Всего: {TotalBoards}";
         }
         catch (Exception ex)
         {
@@ -90,6 +133,17 @@ public class BookingsPageViewModel : ViewModelBase
     async Task AddBookingAsync()
     {
         await _navigationService.NavigateToPage<AddBookingPage>(SelectedDate);
+    }
+
+    async Task ChangeDateAsync(int days)
+    {
+        await SetDateAsync(SelectedDate.AddDays(days));
+    }
+
+    async Task SetDateAsync(DateTime date)
+    {
+        SelectedDate = date.Date;
+        await Task.CompletedTask;
     }
 
     void OnBookingsChanged(object recipient, BookingsChangedMessage message)
@@ -109,4 +163,7 @@ public class BookingsPageViewModel : ViewModelBase
     {
         DateDisplay = SelectedDate.ToString("dddd, d MMMM yyyy", new System.Globalization.CultureInfo("ru-RU"));
     }
+
+    TimeSpan GetReferenceTime()
+        => SelectedDate.Date == DateTime.Today ? DateTime.Now.TimeOfDay : TimeSpan.Zero;
 }

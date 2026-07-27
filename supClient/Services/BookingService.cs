@@ -7,13 +7,16 @@ public class BookingService : IBookingService
 {
     readonly IBookingRepository _bookingRepository;
     readonly IBookingAvailabilityService _availabilityService;
+    readonly IAppSettingsService _settingsService;
 
     public BookingService(
         IBookingRepository bookingRepository,
-        IBookingAvailabilityService availabilityService)
+        IBookingAvailabilityService availabilityService,
+        IAppSettingsService settingsService)
     {
         _bookingRepository = bookingRepository;
         _availabilityService = availabilityService;
+        _settingsService = settingsService;
     }
 
     public async Task<IReadOnlyList<Booking>> GetBookingsByDateAsync(DateTime date)
@@ -26,6 +29,25 @@ public class BookingService : IBookingService
 
     public Task<Booking?> GetBookingByIdAsync(Guid id)
         => _bookingRepository.GetBookingByIdAsync(id);
+
+    public async Task<BoardUsageResult> GetBoardUsageAsync(DateTime date, TimeSpan referenceTime)
+    {
+        var settings = await _settingsService.GetSettingsAsync();
+        var bookings = await _bookingRepository.GetBookingsByDateAsync(date);
+        var referenceDateTime = date.Date.Add(referenceTime);
+        var occupiedBoards = bookings
+            .Where(b => b.StartTime <= referenceDateTime && b.EndTime > referenceDateTime)
+            .Sum(b => b.BoardsCount);
+        var availableBoards = Math.Max(0, settings.TotalBoards - occupiedBoards);
+
+        return new BoardUsageResult
+        {
+            TotalBoards = settings.TotalBoards,
+            OccupiedBoards = occupiedBoards,
+            AvailableBoards = availableBoards,
+            ReferenceTime = referenceTime
+        };
+    }
 
     public async Task<BookingSaveResult> CreateBookingAsync(Booking booking)
     {
