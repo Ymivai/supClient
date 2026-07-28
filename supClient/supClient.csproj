@@ -12,7 +12,7 @@
 		<Nullable>enable</Nullable>
 
 		<ApplicationTitle>SuP</ApplicationTitle>
-		<ApplicationId>com.companyname.supclient</ApplicationId>
+		<ApplicationId>com.sporturbanpoint.sup</ApplicationId>
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
 		<ApplicationVersion>1</ApplicationVersion>
 
@@ -21,6 +21,19 @@
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Release|net9.0-android'">
+		<AndroidPackageFormat>apk</AndroidPackageFormat>
+		<AndroidCreatePackagePerAbi>false</AndroidCreatePackagePerAbi>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Release|net9.0-android' and '$(SUP_ANDROID_KEYSTORE)' != ''">
+		<AndroidKeyStore>true</AndroidKeyStore>
+		<AndroidSigningKeyStore>$(SUP_ANDROID_KEYSTORE)</AndroidSigningKeyStore>
+		<AndroidSigningKeyAlias>$(SUP_ANDROID_KEY_ALIAS)</AndroidSigningKeyAlias>
+		<AndroidSigningKeyPass>$(SUP_ANDROID_KEY_PASS)</AndroidSigningKeyPass>
+		<AndroidSigningStorePass>$(SUP_ANDROID_STORE_PASS)</AndroidSigningStorePass>
 	</PropertyGroup>
 
 	<ItemGroup>
