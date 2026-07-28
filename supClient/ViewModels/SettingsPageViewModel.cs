@@ -6,6 +6,7 @@ using supClient.Messages;
 using supClient.Models;
 using supClient.Services;
 using supClient.Storage;
+using supClient.Views;
 
 namespace supClient.ViewModels;
 
@@ -14,6 +15,7 @@ public class SettingsPageViewModel : ViewModelBase
     readonly IAppSettingsService _settingsService;
     readonly IDataResetService _dataResetService;
     readonly IDialogService _dialogService;
+    readonly INavigationService _navigationService;
     readonly ILogger<SettingsPageViewModel> _logger;
 
     int _totalBoards = Defines.DefaultTotalBoards;
@@ -25,11 +27,13 @@ public class SettingsPageViewModel : ViewModelBase
         IAppSettingsService settingsService,
         IDataResetService dataResetService,
         IDialogService dialogService,
+        INavigationService navigationService,
         ILogger<SettingsPageViewModel> logger)
     {
         _settingsService = settingsService;
         _dataResetService = dataResetService;
         _dialogService = dialogService;
+        _navigationService = navigationService;
         _logger = logger;
 
         UpdateLocalizedDisplays();
@@ -116,6 +120,7 @@ public class SettingsPageViewModel : ViewModelBase
             WeakReferenceMessenger.Default.Send(new SettingsChangedMessage(settings));
 
             await _dialogService.DisplayAlertAsync(Text("Dialog.SavedTitle"), Text("Dialog.SettingsSaved"));
+            await _navigationService.NavigateToRootPage<BookingsPage>();
         }
         catch (Exception ex)
         {

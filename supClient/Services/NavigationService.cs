@@ -33,6 +33,17 @@ public class NavigationService : INavigationService
             await navigatedVm.OnNavigatedTo();
     }
 
+    public async Task NavigateToRootPage<T>(bool animated = true) where T : Page
+    {
+        var shell = Shell.Current;
+
+        if (shell is null)
+            return;
+
+        await MainThread.InvokeOnMainThreadAsync(async () =>
+            await shell.GoToAsync($"//{typeof(T).Name}", animated));
+    }
+
     public async Task NavigateBack(bool animated = true)
     {
         var navigation = Navigation;
