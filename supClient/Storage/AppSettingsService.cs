@@ -33,12 +33,12 @@ public class AppSettingsService : IAppSettingsService
             {
                 await using var stream = File.OpenRead(_filePath);
                 var settings = await JsonSerializer.DeserializeAsync<AppSettings>(stream, JsonOptions);
-                return settings ?? new AppSettings();
+                return NormalizeSettings(settings ?? new AppSettings());
             }
             catch (JsonException)
             {
                 BackupInvalidFile();
-                return new AppSettings();
+                return NormalizeSettings(new AppSettings());
             }
         }
         finally
@@ -53,6 +53,7 @@ public class AppSettingsService : IAppSettingsService
         try
         {
             EnsureStorageDirectoryExists();
+            settings = NormalizeSettings(settings);
             await using var stream = File.Create(_filePath);
             await JsonSerializer.SerializeAsync(stream, settings, JsonOptions);
         }
@@ -76,5 +77,11 @@ public class AppSettingsService : IAppSettingsService
 
         var backupPath = $"{_filePath}.invalid-{DateTime.UtcNow:yyyyMMddHHmmss}";
         File.Move(_filePath, backupPath, overwrite: true);
+    }
+
+    static AppSettings NormalizeSettings(AppSettings settings)
+    {
+        settings.DefaultBookingDuration = Defines.DefaultBookingDuration;
+        return settings;
     }
 }

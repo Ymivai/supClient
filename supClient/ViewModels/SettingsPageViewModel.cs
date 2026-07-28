@@ -17,11 +17,9 @@ public class SettingsPageViewModel : ViewModelBase
     readonly ILogger<SettingsPageViewModel> _logger;
 
     int _totalBoards = Defines.DefaultTotalBoards;
-    int _defaultBookingDurationHours = (int)Defines.DefaultBookingDuration.TotalHours;
     int _weekdayHourlyRate = 300;
     int _weekendHourlyRate = 350;
     string _totalBoardsDisplay = string.Empty;
-    string _defaultBookingDurationDisplay = string.Empty;
 
     public SettingsPageViewModel(
         IAppSettingsService settingsService,
@@ -52,29 +50,10 @@ public class SettingsPageViewModel : ViewModelBase
         }
     }
 
-    public int DefaultBookingDurationHours
-    {
-        get => _defaultBookingDurationHours;
-        set
-        {
-            if (SetProperty(ref _defaultBookingDurationHours, value))
-            {
-                UpdateLocalizedDisplays();
-                (SaveCommand as Command)?.ChangeCanExecute();
-            }
-        }
-    }
-
     public string TotalBoardsDisplay
     {
         get => _totalBoardsDisplay;
         private set => SetProperty(ref _totalBoardsDisplay, value);
-    }
-
-    public string DefaultBookingDurationDisplay
-    {
-        get => _defaultBookingDurationDisplay;
-        private set => SetProperty(ref _defaultBookingDurationDisplay, value);
     }
 
     public int WeekdayHourlyRate
@@ -112,7 +91,6 @@ public class SettingsPageViewModel : ViewModelBase
         {
             var settings = await _settingsService.GetSettingsAsync();
             TotalBoards = settings.TotalBoards;
-            DefaultBookingDurationHours = Math.Max(1, (int)settings.DefaultBookingDuration.TotalHours);
             WeekdayHourlyRate = Math.Max(1, settings.WeekdayHourlyRate);
             WeekendHourlyRate = Math.Max(1, settings.WeekendHourlyRate);
         }
@@ -129,7 +107,7 @@ public class SettingsPageViewModel : ViewModelBase
             var settings = new AppSettings
             {
                 TotalBoards = TotalBoards,
-                DefaultBookingDuration = TimeSpan.FromHours(DefaultBookingDurationHours),
+                DefaultBookingDuration = Defines.DefaultBookingDuration,
                 WeekdayHourlyRate = WeekdayHourlyRate,
                 WeekendHourlyRate = WeekendHourlyRate
             };
@@ -172,14 +150,12 @@ public class SettingsPageViewModel : ViewModelBase
 
     bool CanSave()
         => TotalBoards > 0
-           && DefaultBookingDurationHours > 0
            && WeekdayHourlyRate > 0
            && WeekendHourlyRate > 0;
 
     void UpdateLocalizedDisplays()
     {
         TotalBoardsDisplay = string.Format(Text("Label.TotalBoards"), TotalBoards);
-        DefaultBookingDurationDisplay = string.Format(Text("Label.Hours"), DefaultBookingDurationHours);
     }
 
     static string Text(string key)

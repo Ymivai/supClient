@@ -26,20 +26,6 @@
                     Text="{Binding TotalBoardsDisplay}" />
             </VerticalStackLayout>
 
-            <VerticalStackLayout Spacing="8">
-                <Label
-                    FontAttributes="Bold"
-                    Text="{localization:Localization Label.DefaultBookingDuration}" />
-                <Stepper
-                    Increment="1"
-                    Maximum="12"
-                    Minimum="1"
-                    Value="{Binding DefaultBookingDurationHours}" />
-                <Label
-                    HorizontalOptions="Center"
-                    Text="{Binding DefaultBookingDurationDisplay}" />
-            </VerticalStackLayout>
-
             <Grid
                 ColumnDefinitions="*,*"
                 ColumnSpacing="12">
