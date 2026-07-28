@@ -1,4 +1,3 @@
-using System.Collections.ObjectModel;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.Logging;
@@ -15,14 +14,12 @@ public class SettingsPageViewModel : ViewModelBase
     readonly IAppSettingsService _settingsService;
     readonly IDataResetService _dataResetService;
     readonly IDialogService _dialogService;
-    readonly LanguagesManager _languagesManager;
     readonly ILogger<SettingsPageViewModel> _logger;
 
     int _totalBoards = Defines.DefaultTotalBoards;
     int _defaultBookingDurationHours = (int)Defines.DefaultBookingDuration.TotalHours;
     int _weekdayHourlyRate = 300;
     int _weekendHourlyRate = 350;
-    int _selectedLanguageIndex;
     string _totalBoardsDisplay = string.Empty;
     string _defaultBookingDurationDisplay = string.Empty;
 
@@ -30,25 +27,17 @@ public class SettingsPageViewModel : ViewModelBase
         IAppSettingsService settingsService,
         IDataResetService dataResetService,
         IDialogService dialogService,
-        LanguagesManager languagesManager,
         ILogger<SettingsPageViewModel> logger)
     {
         _settingsService = settingsService;
         _dataResetService = dataResetService;
         _dialogService = dialogService;
-        _languagesManager = languagesManager;
         _logger = logger;
 
-        LanguageNames = new ObservableCollection<string>();
-        RefreshLanguageNames();
-        LocalizedResources.Instance.PropertyChanged += (_, _) => RefreshLanguageNames();
-        _selectedLanguageIndex = GetCurrentLanguageIndex();
         UpdateLocalizedDisplays();
         SaveCommand = new Command(async () => await SaveAsync(), CanSave);
         DeleteAllBookingsCommand = new Command(async () => await DeleteAllBookingsAsync());
     }
-
-    public ObservableCollection<string> LanguageNames { get; }
 
     public int TotalBoards
     {
@@ -108,16 +97,6 @@ public class SettingsPageViewModel : ViewModelBase
         }
     }
 
-    public int SelectedLanguageIndex
-    {
-        get => _selectedLanguageIndex;
-        set
-        {
-            if (SetProperty(ref _selectedLanguageIndex, value))
-                (SaveCommand as Command)?.ChangeCanExecute();
-        }
-    }
-
     public ICommand SaveCommand { get; }
 
     public ICommand DeleteAllBookingsCommand { get; }
@@ -136,7 +115,6 @@ public class SettingsPageViewModel : ViewModelBase
             DefaultBookingDurationHours = Math.Max(1, (int)settings.DefaultBookingDuration.TotalHours);
             WeekdayHourlyRate = Math.Max(1, settings.WeekdayHourlyRate);
             WeekendHourlyRate = Math.Max(1, settings.WeekendHourlyRate);
-            SelectedLanguageIndex = GetCurrentLanguageIndex();
         }
         catch (Exception ex)
         {
@@ -157,7 +135,6 @@ public class SettingsPageViewModel : ViewModelBase
             };
 
             await _settingsService.SaveSettingsAsync(settings);
-            ApplySelectedLanguage();
             WeakReferenceMessenger.Default.Send(new SettingsChangedMessage(settings));
 
             await _dialogService.DisplayAlertAsync(Text("Dialog.SavedTitle"), Text("Dialog.SettingsSaved"));
@@ -197,39 +174,7 @@ public class SettingsPageViewModel : ViewModelBase
         => TotalBoards > 0
            && DefaultBookingDurationHours > 0
            && WeekdayHourlyRate > 0
-           && WeekendHourlyRate > 0
-           && SelectedLanguageIndex >= 0
-           && SelectedLanguageIndex < _languagesManager.SupportedLanguages.Count;
-
-    int GetCurrentLanguageIndex()
-    {
-        var index = _languagesManager.SupportedLanguages
-            .Select((language, i) => new { language, i })
-            .FirstOrDefault(item => item.language.Culture.Name == _languagesManager.CurrentLanguage.Culture.Name)
-            ?.i;
-
-        return index ?? 0;
-    }
-
-    void ApplySelectedLanguage()
-    {
-        if (SelectedLanguageIndex < 0 || SelectedLanguageIndex >= _languagesManager.SupportedLanguages.Count)
-            return;
-
-        _languagesManager.SetLanguage(_languagesManager.SupportedLanguages[SelectedLanguageIndex]);
-    }
-
-    void RefreshLanguageNames()
-    {
-        LanguageNames.Clear();
-        foreach (var language in _languagesManager.SupportedLanguages)
-        {
-            LanguageNames.Add(Text(language.Name));
-        }
-
-        RaisePropertyChanged(nameof(SelectedLanguageIndex));
-        UpdateLocalizedDisplays();
-    }
+           && WeekendHourlyRate > 0;
 
     void UpdateLocalizedDisplays()
     {

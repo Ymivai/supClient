@@ -64,15 +64,6 @@
                 </VerticalStackLayout>
             </Grid>
 
-            <VerticalStackLayout Spacing="8">
-                <Label
-                    FontAttributes="Bold"
-                    Text="{localization:Localization Label.Language}" />
-                <Picker
-                    ItemsSource="{Binding LanguageNames}"
-                    SelectedIndex="{Binding SelectedLanguageIndex}" />
-            </VerticalStackLayout>
-
             <Button
                 Command="{Binding SaveCommand}"
                 Text="{localization:Localization Button.Save}" />
