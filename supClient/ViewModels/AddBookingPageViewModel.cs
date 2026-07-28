@@ -29,7 +29,7 @@ public class AddBookingPageViewModel : ViewModelBase
     string _comment = string.Empty;
     int _selectedPaymentMethodIndex;
     int _svoParticipantsCount;
-    bool _isSvoParticipantPayment;
+    bool _hasSvoParticipants;
     string _pageTitle = Text("Title.NewBooking");
     string _durationDisplay = string.Empty;
     string _boardsCountDisplay = string.Empty;
@@ -164,13 +164,7 @@ public class AddBookingPageViewModel : ViewModelBase
         set
         {
             if (SetProperty(ref _selectedPaymentMethodIndex, value))
-            {
-                IsSvoParticipantPayment = SelectedPaymentMethod == PaymentMethod.SvoParticipant;
-                if (!IsSvoParticipantPayment)
-                    SvoParticipantsCount = 0;
-
                 (SaveCommand as Command)?.ChangeCanExecute();
-            }
         }
     }
 
@@ -188,10 +182,17 @@ public class AddBookingPageViewModel : ViewModelBase
         }
     }
 
-    public bool IsSvoParticipantPayment
+    public bool HasSvoParticipants
     {
-        get => _isSvoParticipantPayment;
-        private set => SetProperty(ref _isSvoParticipantPayment, value);
+        get => _hasSvoParticipants;
+        set
+        {
+            if (SetProperty(ref _hasSvoParticipants, value))
+            {
+                SvoParticipantsCount = value ? Math.Max(1, SvoParticipantsCount) : 0;
+                (SaveCommand as Command)?.ChangeCanExecute();
+            }
+        }
     }
 
     public ICommand SaveCommand { get; }
@@ -239,6 +240,7 @@ public class AddBookingPageViewModel : ViewModelBase
         EndTime = booking.EndTime.TimeOfDay;
         BoardsCount = booking.BoardsCount;
         SvoParticipantsCount = booking.SvoParticipantsCount;
+        HasSvoParticipants = booking.SvoParticipantsCount > 0;
         ClientName = booking.ClientName;
         PhoneNumber = booking.PhoneNumber ?? string.Empty;
         Comment = booking.Comment ?? string.Empty;
@@ -257,7 +259,7 @@ public class AddBookingPageViewModel : ViewModelBase
                 StartTime = BookingDate.Date.Add(StartTime),
                 Duration = GetDuration(),
                 BoardsCount = BoardsCount,
-                SvoParticipantsCount = IsSvoParticipantPayment ? SvoParticipantsCount : 0,
+                SvoParticipantsCount = HasSvoParticipants ? SvoParticipantsCount : 0,
                 ClientName = ClientName.Trim(),
                 PhoneNumber = string.IsNullOrWhiteSpace(PhoneNumber) ? null : PhoneNumber.Trim(),
                 Comment = string.IsNullOrWhiteSpace(Comment) ? null : Comment.Trim(),
@@ -323,7 +325,7 @@ public class AddBookingPageViewModel : ViewModelBase
 
     bool CanSave()
         => BoardsCount > 0
-           && (!IsSvoParticipantPayment || SvoParticipantsCount > 0)
+           && (!HasSvoParticipants || SvoParticipantsCount > 0)
            && SvoParticipantsCount <= BoardsCount
            && GetDuration() > TimeSpan.Zero
            && !string.IsNullOrWhiteSpace(ClientName);

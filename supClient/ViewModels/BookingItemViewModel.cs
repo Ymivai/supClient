@@ -77,9 +77,7 @@ public class BookingItemViewModel
         if (booking.PaymentMethod is Models.PaymentMethod.Unpaid or Models.PaymentMethod.Transfer or Models.PaymentMethod.Other)
             return 0;
 
-        var paidBoardsCount = booking.PaymentMethod == Models.PaymentMethod.SvoParticipant
-            ? Math.Max(0, booking.BoardsCount - booking.SvoParticipantsCount)
-            : booking.BoardsCount;
+        var paidBoardsCount = Math.Max(0, booking.BoardsCount - booking.SvoParticipantsCount);
         var amount = paidBoardsCount * (decimal)booking.Duration.TotalHours * hourlyRate;
         return (int)Math.Round(amount, MidpointRounding.AwayFromZero);
     }

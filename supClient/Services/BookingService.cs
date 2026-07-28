@@ -47,10 +47,7 @@ public class BookingService : IBookingService
         var cashRevenue = bookings
             .Where(b => b.PaymentMethod == PaymentMethod.Cash)
             .Sum(b => CalculateBookingRevenue(b, hourlyRate));
-        var svoRevenue = bookings
-            .Where(b => b.PaymentMethod == PaymentMethod.SvoParticipant)
-            .Sum(b => CalculateBookingRevenue(b, hourlyRate));
-        var totalRevenue = cardRevenue + cashRevenue + svoRevenue;
+        var totalRevenue = cardRevenue + cashRevenue;
 
         return new BoardUsageResult
         {
@@ -150,9 +147,7 @@ public class BookingService : IBookingService
         if (booking.PaymentMethod is PaymentMethod.Unpaid or PaymentMethod.Transfer or PaymentMethod.Other)
             return 0;
 
-        var paidBoardsCount = booking.PaymentMethod == PaymentMethod.SvoParticipant
-            ? Math.Max(0, booking.BoardsCount - booking.SvoParticipantsCount)
-            : booking.BoardsCount;
+        var paidBoardsCount = Math.Max(0, booking.BoardsCount - booking.SvoParticipantsCount);
         var amount = paidBoardsCount * (decimal)booking.Duration.TotalHours * hourlyRate;
         return (int)Math.Round(amount, MidpointRounding.AwayFromZero);
     }

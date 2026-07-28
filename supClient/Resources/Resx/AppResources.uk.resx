@@ -63,6 +63,9 @@
   <data name="Label.PaymentMethod" xml:space="preserve">
     <value>Спосіб оплати</value>
   </data>
+  <data name="Label.HasSvoParticipants" xml:space="preserve">
+    <value>Є учасники УБД</value>
+  </data>
   <data name="Label.SvoParticipantsCount" xml:space="preserve">
     <value>Учасники УБД</value>
   </data>

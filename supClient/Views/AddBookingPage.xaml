@@ -59,8 +59,17 @@
                         SelectedIndex="{Binding SelectedPaymentMethodIndex}" />
             </VerticalStackLayout>
 
+            <VerticalStackLayout Spacing="8">
+                <HorizontalStackLayout Spacing="8">
+                    <CheckBox IsChecked="{Binding HasSvoParticipants}" />
+                    <Label Text="{localization:Localization Label.HasSvoParticipants}"
+                           VerticalOptions="Center" />
+                </HorizontalStackLayout>
+
+            </VerticalStackLayout>
+
             <VerticalStackLayout Spacing="8"
-                                 IsVisible="{Binding IsSvoParticipantPayment}">
+                                 IsVisible="{Binding HasSvoParticipants}">
                 <Label Text="{localization:Localization Label.SvoParticipantsCount}" FontAttributes="Bold" />
                 <Stepper Minimum="1"
                          Maximum="{Binding BoardsCount}"

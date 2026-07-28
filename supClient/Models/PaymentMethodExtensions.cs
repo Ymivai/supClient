@@ -6,9 +6,9 @@ public static class PaymentMethodExtensions
 {
     public static IReadOnlyList<PaymentMethod> BookingPaymentMethods { get; } =
     [
+        PaymentMethod.Unpaid,
         PaymentMethod.Cash,
-        PaymentMethod.Card,
-        PaymentMethod.SvoParticipant
+        PaymentMethod.Card
     ];
 
     public static string ToDisplayName(this PaymentMethod paymentMethod)
@@ -36,5 +36,5 @@ public static class PaymentMethodExtensions
     public static PaymentMethod FromSelectionIndex(int selectedIndex)
         => selectedIndex >= 0 && selectedIndex < BookingPaymentMethods.Count
             ? BookingPaymentMethods[selectedIndex]
-            : PaymentMethod.Cash;
+            : PaymentMethod.Unpaid;
 }
