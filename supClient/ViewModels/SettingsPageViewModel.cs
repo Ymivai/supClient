@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.Logging;
@@ -22,6 +23,8 @@ public class SettingsPageViewModel : ViewModelBase
     int _weekdayHourlyRate = 300;
     int _weekendHourlyRate = 350;
     int _selectedLanguageIndex;
+    string _totalBoardsDisplay = string.Empty;
+    string _defaultBookingDurationDisplay = string.Empty;
 
     public SettingsPageViewModel(
         IAppSettingsService settingsService,
@@ -36,15 +39,16 @@ public class SettingsPageViewModel : ViewModelBase
         _languagesManager = languagesManager;
         _logger = logger;
 
-        LanguageNames = _languagesManager.SupportedLanguages
-            .Select(language => Text(language.Name))
-            .ToList();
+        LanguageNames = new ObservableCollection<string>();
+        RefreshLanguageNames();
+        LocalizedResources.Instance.PropertyChanged += (_, _) => RefreshLanguageNames();
         _selectedLanguageIndex = GetCurrentLanguageIndex();
+        UpdateLocalizedDisplays();
         SaveCommand = new Command(async () => await SaveAsync(), CanSave);
         DeleteAllBookingsCommand = new Command(async () => await DeleteAllBookingsAsync());
     }
 
-    public IReadOnlyList<string> LanguageNames { get; }
+    public ObservableCollection<string> LanguageNames { get; }
 
     public int TotalBoards
     {
@@ -52,7 +56,10 @@ public class SettingsPageViewModel : ViewModelBase
         set
         {
             if (SetProperty(ref _totalBoards, value))
+            {
+                UpdateLocalizedDisplays();
                 (SaveCommand as Command)?.ChangeCanExecute();
+            }
         }
     }
 
@@ -62,8 +69,23 @@ public class SettingsPageViewModel : ViewModelBase
         set
         {
             if (SetProperty(ref _defaultBookingDurationHours, value))
+            {
+                UpdateLocalizedDisplays();
                 (SaveCommand as Command)?.ChangeCanExecute();
+            }
         }
+    }
+
+    public string TotalBoardsDisplay
+    {
+        get => _totalBoardsDisplay;
+        private set => SetProperty(ref _totalBoardsDisplay, value);
+    }
+
+    public string DefaultBookingDurationDisplay
+    {
+        get => _defaultBookingDurationDisplay;
+        private set => SetProperty(ref _defaultBookingDurationDisplay, value);
     }
 
     public int WeekdayHourlyRate
@@ -195,6 +217,24 @@ public class SettingsPageViewModel : ViewModelBase
             return;
 
         _languagesManager.SetLanguage(_languagesManager.SupportedLanguages[SelectedLanguageIndex]);
+    }
+
+    void RefreshLanguageNames()
+    {
+        LanguageNames.Clear();
+        foreach (var language in _languagesManager.SupportedLanguages)
+        {
+            LanguageNames.Add(Text(language.Name));
+        }
+
+        RaisePropertyChanged(nameof(SelectedLanguageIndex));
+        UpdateLocalizedDisplays();
+    }
+
+    void UpdateLocalizedDisplays()
+    {
+        TotalBoardsDisplay = string.Format(Text("Label.TotalBoards"), TotalBoards);
+        DefaultBookingDurationDisplay = string.Format(Text("Label.Hours"), DefaultBookingDurationHours);
     }
 
     static string Text(string key)

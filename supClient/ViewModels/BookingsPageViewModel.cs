@@ -222,7 +222,11 @@ public class BookingsPageViewModel : ViewModelBase
 
     void OnSettingsChanged(object recipient, SettingsChangedMessage message)
     {
-        MainThread.BeginInvokeOnMainThread(async () => await LoadBookingsAsync());
+        MainThread.BeginInvokeOnMainThread(async () =>
+        {
+            UpdateDateDisplay();
+            await LoadBookingsAsync();
+        });
     }
 
     void OnAllBookingsDeleted(object recipient, AllBookingsDeletedMessage message)

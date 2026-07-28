@@ -4,7 +4,7 @@ namespace supClient.Localization;
 
 public class LanguagesManager
 {
-    const string SelectedCultureKey = "SelectedCulture";
+    const string SelectedCultureKey = "SelectedCultureV2";
 
     public IReadOnlyList<LanguageModel> SupportedLanguages { get; } =
     [
@@ -44,11 +44,7 @@ public class LanguagesManager
         if (selectedLanguage is not null)
             return selectedLanguage;
 
-        var currentCulture = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ru"
-            ? "ru"
-            : "uk";
-
-        return SupportedLanguages.First(language => language.Culture.Name == currentCulture);
+        return SupportedLanguages.First(language => language.Culture.Name == "uk");
     }
 
     static void Apply(LanguageModel language)

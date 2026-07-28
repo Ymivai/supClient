@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.Logging;
@@ -31,6 +32,8 @@ public class AddBookingPageViewModel : ViewModelBase
     bool _isSvoParticipantPayment;
     string _pageTitle = Text("Title.NewBooking");
     string _durationDisplay = string.Empty;
+    string _boardsCountDisplay = string.Empty;
+    string _svoParticipantsDisplay = string.Empty;
     bool _isEditing;
 
     public AddBookingPageViewModel(
@@ -46,18 +49,16 @@ public class AddBookingPageViewModel : ViewModelBase
         _dialogService = dialogService;
         _logger = logger;
 
-        PaymentMethodNames = PaymentMethodExtensions.BookingPaymentMethods
-            .Select(m => m.ToDisplayName())
-            .ToList();
+        PaymentMethodNames = new ObservableCollection<string>();
+        RefreshLocalizedTexts();
+        LocalizedResources.Instance.PropertyChanged += (_, _) => RefreshLocalizedTexts();
 
         SaveCommand = new Command(async () => await SaveAsync(), CanSave);
         DeleteCommand = new Command(async () => await DeleteAsync(), () => IsEditing);
         CancelCommand = new Command(async () => await CancelAsync());
-
-        UpdateDurationDisplay();
     }
 
-    public IReadOnlyList<string> PaymentMethodNames { get; }
+    public ObservableCollection<string> PaymentMethodNames { get; }
 
     public string PageTitle
     {
@@ -107,6 +108,18 @@ public class AddBookingPageViewModel : ViewModelBase
         private set => SetProperty(ref _durationDisplay, value);
     }
 
+    public string BoardsCountDisplay
+    {
+        get => _boardsCountDisplay;
+        private set => SetProperty(ref _boardsCountDisplay, value);
+    }
+
+    public string SvoParticipantsDisplay
+    {
+        get => _svoParticipantsDisplay;
+        private set => SetProperty(ref _svoParticipantsDisplay, value);
+    }
+
     public int BoardsCount
     {
         get => _boardsCount;
@@ -117,6 +130,7 @@ public class AddBookingPageViewModel : ViewModelBase
                 if (SvoParticipantsCount > BoardsCount)
                     SvoParticipantsCount = BoardsCount;
 
+                UpdateCountDisplays();
                 (SaveCommand as Command)?.ChangeCanExecute();
             }
         }
@@ -167,7 +181,10 @@ public class AddBookingPageViewModel : ViewModelBase
         {
             var normalizedValue = Math.Clamp(value, 0, BoardsCount);
             if (SetProperty(ref _svoParticipantsCount, normalizedValue))
+            {
+                UpdateCountDisplays();
                 (SaveCommand as Command)?.ChangeCanExecute();
+            }
         }
     }
 
@@ -340,6 +357,31 @@ public class AddBookingPageViewModel : ViewModelBase
         DurationDisplay = duration.Hours > 0
             ? string.Format(Text("Format.DurationHoursMinutes"), duration.Hours, duration.Minutes)
             : string.Format(Text("Format.DurationMinutes"), duration.Minutes);
+    }
+
+    void RefreshLocalizedTexts()
+    {
+        RefreshPaymentMethodNames();
+        PageTitle = IsEditing ? Text("Title.EditBooking") : Text("Title.NewBooking");
+        UpdateDurationDisplay();
+        UpdateCountDisplays();
+    }
+
+    void RefreshPaymentMethodNames()
+    {
+        PaymentMethodNames.Clear();
+        foreach (var method in PaymentMethodExtensions.BookingPaymentMethods)
+        {
+            PaymentMethodNames.Add(method.ToDisplayName());
+        }
+
+        RaisePropertyChanged(nameof(SelectedPaymentMethodIndex));
+    }
+
+    void UpdateCountDisplays()
+    {
+        BoardsCountDisplay = string.Format(Text("Label.SelectedBoards"), BoardsCount);
+        SvoParticipantsDisplay = string.Format(Text("Label.SvoParticipantsSelected"), SvoParticipantsCount);
     }
 
     async Task NavigateBackAfterSuccessfulChangeAsync()

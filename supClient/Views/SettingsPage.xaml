@@ -23,7 +23,7 @@
                     Value="{Binding TotalBoards}" />
                 <Label
                     HorizontalOptions="Center"
-                    Text="{Binding TotalBoards, StringFormat={localization:Localization Label.TotalBoards}}" />
+                    Text="{Binding TotalBoardsDisplay}" />
             </VerticalStackLayout>
 
             <VerticalStackLayout Spacing="8">
@@ -37,7 +37,7 @@
                     Value="{Binding DefaultBookingDurationHours}" />
                 <Label
                     HorizontalOptions="Center"
-                    Text="{Binding DefaultBookingDurationHours, StringFormat={localization:Localization Label.Hours}}" />
+                    Text="{Binding DefaultBookingDurationDisplay}" />
             </VerticalStackLayout>
 
             <Grid

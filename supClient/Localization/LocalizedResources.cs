@@ -6,7 +6,6 @@ namespace supClient.Localization;
 
 public class LocalizedResources : INotifyPropertyChanged
 {
-    static readonly CultureInfo DefaultCultureInfo = CultureInfo.CurrentUICulture;
     static readonly ResourceManager ResourceManager = new(
         "supClient.Resources.Resx.AppResources",
         typeof(LocalizedResources).Assembly);
@@ -33,13 +32,8 @@ public class LocalizedResources : INotifyPropertyChanged
 
     protected LocalizedResources()
     {
-        CurrentCultureInfo = NormalizeCulture(DefaultCultureInfo);
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    static CultureInfo NormalizeCulture(CultureInfo cultureInfo)
-        => cultureInfo.TwoLetterISOLanguageName == "ru"
-            ? new CultureInfo("ru")
-            : new CultureInfo("uk");
 }
