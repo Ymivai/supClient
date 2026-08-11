@@ -41,7 +41,15 @@ The APK will be in:
 supClient\bin\Release\net9.0-android\publish\
 ```
 
-Install/share the signed `*.apk` from that `publish` folder.
+The build keeps the technical Android package file and also creates a friendly copy:
+
+```text
+SportUrbanPoint-SuP-v1.0.apk
+```
+
+The `v1.0` part comes from `ApplicationDisplayVersion` in the project publish settings.
+
+Install/share the friendly APK from that `publish` folder.
 
 ## Notes
 

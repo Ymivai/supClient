@@ -26,6 +26,7 @@
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Release|net9.0-android'">
 		<AndroidPackageFormat>apk</AndroidPackageFormat>
 		<AndroidCreatePackagePerAbi>false</AndroidCreatePackagePerAbi>
+		<AndroidFriendlyApkName>SportUrbanPoint-SuP-v$(ApplicationDisplayVersion).apk</AndroidFriendlyApkName>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Release|net9.0-android' and '$(SUP_ANDROID_KEYSTORE)' != ''">
@@ -54,5 +55,15 @@
 		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="9.0.111" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.7" />
 	</ItemGroup>
+
+	<Target Name="CopyFriendlyAndroidApk"
+	        AfterTargets="Publish"
+	        Condition="'$(Configuration)|$(TargetFramework)'=='Release|net9.0-android' and Exists('$(PublishDir)$(ApplicationId)-Signed.apk')">
+		<Copy SourceFiles="$(PublishDir)$(ApplicationId)-Signed.apk"
+		      DestinationFiles="$(PublishDir)$(AndroidFriendlyApkName)"
+		      SkipUnchangedFiles="true" />
+		<Message Importance="High"
+		         Text="Friendly Android APK: $(PublishDir)$(AndroidFriendlyApkName)" />
+	</Target>
 
 </Project>
