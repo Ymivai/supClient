@@ -1111,6 +1111,8 @@ Verification:
 
 ### 7. Live Price Preview On Create/Edit
 
+Status: Implemented.
+
 Goal:
 
 - Show calculated booking cost before saving.
