@@ -95,11 +95,12 @@ public class BookingService : IBookingService
         if (existing is null)
             return BookingSaveResult.Failure(Text("Dialog.BookingNotFound"));
 
+        var editedBookingId = existing.Id;
         var availability = await _availabilityService.CheckAvailabilityAsync(
             booking.StartTime,
             booking.BoardsCount,
             booking.Duration,
-            booking.Id);
+            editedBookingId);
 
         if (!availability.IsAvailable)
             return BookingSaveResult.Failure(availability.GetUnavailableMessage(), availability);

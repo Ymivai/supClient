@@ -36,7 +36,7 @@ public class BookingAvailabilityService : IBookingAvailabilityService
             return CreateUnavailableResult(settings.TotalBoards, boardsCount, Text("Availability.DurationRequired"));
 
         var dayBookings = await _bookingRepository.GetBookingsByDateAsync(startTime.Date);
-        var relevantBookings = FilterBookings(dayBookings, excludeBookingId);
+        var relevantBookings = GetOtherBookings(dayBookings, excludeBookingId);
 
         var occupiedBoards = GetOccupiedBoardsAt(startTime, bookingDuration, relevantBookings);
         var availableBoards = GetAvailableBoardsAt(startTime, bookingDuration, relevantBookings, settings.TotalBoards);
@@ -154,12 +154,12 @@ public class BookingAvailabilityService : IBookingAvailabilityService
         return peak;
     }
 
-    static List<Booking> FilterBookings(IReadOnlyList<Booking> bookings, Guid? excludeBookingId)
+    static List<Booking> GetOtherBookings(IReadOnlyList<Booking> bookings, Guid? editedBookingId)
     {
-        if (!excludeBookingId.HasValue)
+        if (!editedBookingId.HasValue)
             return bookings.ToList();
 
-        return bookings.Where(b => b.Id != excludeBookingId.Value).ToList();
+        return bookings.Where(b => b.Id != editedBookingId.Value).ToList();
     }
 
     static IReadOnlyList<BookingConflict> GetConflictingBookings(
