@@ -1085,6 +1085,8 @@ Verification:
 
 ### 6. Custom Revenue Rounding
 
+Status: Implemented.
+
 Goal:
 
 - Round final booking cost to the nearest `50 грн`.

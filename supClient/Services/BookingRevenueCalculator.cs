@@ -4,11 +4,29 @@ namespace supClient.Services;
 
 public static class BookingRevenueCalculator
 {
+    const int RevenueRoundingStep = 50;
+    const int RoundDownThreshold = 20;
+
     public static int CalculateBookingTotal(Booking booking, int hourlyRate)
     {
         var paidBoardsCount = Math.Max(0, booking.BoardsCount - booking.SvoParticipantsCount);
         var amount = paidBoardsCount * (decimal)booking.Duration.TotalHours * hourlyRate;
-        return (int)Math.Round(amount, MidpointRounding.AwayFromZero);
+        var rawAmount = (int)Math.Round(amount, MidpointRounding.AwayFromZero);
+
+        return RoundBookingTotal(rawAmount);
+    }
+
+    public static int RoundBookingTotal(int amount)
+    {
+        if (amount <= 0)
+            return 0;
+
+        var lowerBoundary = amount / RevenueRoundingStep * RevenueRoundingStep;
+        var differenceFromLowerBoundary = amount - lowerBoundary;
+
+        return differenceFromLowerBoundary <= RoundDownThreshold
+            ? lowerBoundary
+            : lowerBoundary + RevenueRoundingStep;
     }
 
     public static int GetCardRevenue(Booking booking, int hourlyRate)
