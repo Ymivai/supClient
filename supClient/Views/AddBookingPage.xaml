@@ -95,6 +95,12 @@
                        HorizontalOptions="Center" />
             </VerticalStackLayout>
 
+            <HorizontalStackLayout Spacing="8">
+                <CheckBox IsChecked="{Binding FullHourlyPricing}" />
+                <Label Text="{localization:Localization Label.FullHourlyPricing}"
+                       VerticalOptions="Center" />
+            </HorizontalStackLayout>
+
             <Label Text="{Binding BookingCostDisplay}"
                    FontAttributes="Bold"
                    FontSize="18"

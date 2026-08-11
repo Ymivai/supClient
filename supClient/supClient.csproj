@@ -37,6 +37,36 @@
 		<AndroidSigningStorePass>$(SUP_ANDROID_STORE_PASS)</AndroidSigningStorePass>
 	</PropertyGroup>
 
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-android|AnyCPU'">
+	  <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+	  <ApplicationVersion>2</ApplicationVersion>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-ios|AnyCPU'">
+	  <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+	  <ApplicationVersion>2</ApplicationVersion>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-windows10.0.19041.0|AnyCPU'">
+	  <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+	  <ApplicationVersion>2</ApplicationVersion>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0-android|AnyCPU'">
+	  <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+	  <ApplicationVersion>2</ApplicationVersion>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0-ios|AnyCPU'">
+	  <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+	  <ApplicationVersion>2</ApplicationVersion>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0-windows10.0.19041.0|AnyCPU'">
+	  <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+	  <ApplicationVersion>2</ApplicationVersion>
+	</PropertyGroup>
+
 	<ItemGroup>
 		<MauiIcon Include="Resources\AppIcon\appicon.svg" Color="#062F33" />
 		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#ECE7DB" BaseSize="110,110" />
@@ -56,14 +86,9 @@
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.7" />
 	</ItemGroup>
 
-	<Target Name="CopyFriendlyAndroidApk"
-	        AfterTargets="Publish"
-	        Condition="'$(Configuration)|$(TargetFramework)'=='Release|net9.0-android' and Exists('$(PublishDir)$(ApplicationId)-Signed.apk')">
-		<Copy SourceFiles="$(PublishDir)$(ApplicationId)-Signed.apk"
-		      DestinationFiles="$(PublishDir)$(AndroidFriendlyApkName)"
-		      SkipUnchangedFiles="true" />
-		<Message Importance="High"
-		         Text="Friendly Android APK: $(PublishDir)$(AndroidFriendlyApkName)" />
+	<Target Name="CopyFriendlyAndroidApk" AfterTargets="Publish" Condition="'$(Configuration)|$(TargetFramework)'=='Release|net9.0-android' and Exists('$(PublishDir)$(ApplicationId)-Signed.apk')">
+		<Copy SourceFiles="$(PublishDir)$(ApplicationId)-Signed.apk" DestinationFiles="$(PublishDir)$(AndroidFriendlyApkName)" SkipUnchangedFiles="true" />
+		<Message Importance="High" Text="Friendly Android APK: $(PublishDir)$(AndroidFriendlyApkName)" />
 	</Target>
 
 </Project>

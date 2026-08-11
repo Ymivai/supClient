@@ -78,6 +78,9 @@
   <data name="Label.SvoParticipantsSelected" xml:space="preserve">
     <value>Учасників: {0}</value>
   </data>
+  <data name="Label.FullHourlyPricing" xml:space="preserve">
+    <value>Повна погодинна вартість</value>
+  </data>
   <data name="Label.Comment" xml:space="preserve">
     <value>Коментар</value>
   </data>

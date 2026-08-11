@@ -32,6 +32,7 @@ public class AddBookingPageViewModel : ViewModelBase
     int _cashPaymentAmount;
     int _svoParticipantsCount;
     bool _hasSvoParticipants;
+    bool _fullHourlyPricing;
     AppSettings _settings = new();
     bool _isUpdatingPaymentAmounts;
     int _lastBookingCost;
@@ -248,6 +249,19 @@ public class AddBookingPageViewModel : ViewModelBase
         }
     }
 
+    public bool FullHourlyPricing
+    {
+        get => _fullHourlyPricing;
+        set
+        {
+            if (SetProperty(ref _fullHourlyPricing, value))
+            {
+                UpdatePaymentDisplays();
+                (SaveCommand as Command)?.ChangeCanExecute();
+            }
+        }
+    }
+
     public ICommand SaveCommand { get; }
 
     public ICommand DeleteCommand { get; }
@@ -296,6 +310,7 @@ public class AddBookingPageViewModel : ViewModelBase
         BoardsCount = booking.BoardsCount;
         SvoParticipantsCount = booking.SvoParticipantsCount;
         HasSvoParticipants = booking.SvoParticipantsCount > 0;
+        FullHourlyPricing = booking.FullHourlyPricing;
         ClientName = booking.ClientName;
         PhoneNumber = booking.PhoneNumber ?? string.Empty;
         Comment = booking.Comment ?? string.Empty;
@@ -317,6 +332,7 @@ public class AddBookingPageViewModel : ViewModelBase
                 Duration = GetDuration(),
                 BoardsCount = BoardsCount,
                 SvoParticipantsCount = HasSvoParticipants ? SvoParticipantsCount : 0,
+                FullHourlyPricing = FullHourlyPricing,
                 ClientName = ClientName.Trim(),
                 PhoneNumber = string.IsNullOrWhiteSpace(PhoneNumber) ? null : PhoneNumber.Trim(),
                 Comment = string.IsNullOrWhiteSpace(Comment) ? null : Comment.Trim(),
@@ -538,7 +554,8 @@ public class AddBookingPageViewModel : ViewModelBase
             StartTime = BookingDate.Date.Add(StartTime),
             Duration = GetDuration(),
             BoardsCount = BoardsCount,
-            SvoParticipantsCount = HasSvoParticipants ? SvoParticipantsCount : 0
+            SvoParticipantsCount = HasSvoParticipants ? SvoParticipantsCount : 0,
+            FullHourlyPricing = FullHourlyPricing
         };
 
         return booking.Duration > TimeSpan.Zero

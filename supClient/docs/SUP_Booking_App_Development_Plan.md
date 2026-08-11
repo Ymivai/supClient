@@ -1130,20 +1130,31 @@ Verification:
 - Preview matches the amount stored after saving.
 - Invalid durations or invalid board counts do not show misleading totals.
 
-### 8. Close Settings After Save
+### 8. Full Hourly Pricing Mode
 
 Status: Implemented.
 
 Goal:
 
-- After settings are saved successfully, automatically return the user to the previous/main screen.
-- If theme was changed, apply it immediately before closing Settings.
+- Add a separate checkbox on the create/edit booking screen, for example `Повна погодинна вартість`.
+- By default, booking cost uses the current application pricing logic.
+- If the checkbox is enabled, calculate cost fully by hourly rate for all selected SUP and the full rental duration.
+- In this mode, special discounts that are applied in the normal mode are not applied to the price calculation.
+- The previewed final cost should update immediately before saving.
+- Save this checkbox state with the booking so it is visible again when editing.
+
+Example:
+
+- Hourly rate: `300 грн`.
+- SUP count: `2`.
+- Duration: `2 hours`.
+- Full hourly price: `1200 грн`.
 
 Verification:
 
-- Saving settings returns to the booking screen.
-- If theme changed, the new theme is visible immediately.
-- Main booking screen refreshes after settings changes.
+- Full hourly pricing can be enabled per booking.
+- Price preview updates immediately when the checkbox changes.
+- Saved bookings keep the selected pricing mode after app restart.
 
 ## Future Versions / Phase 2+
 

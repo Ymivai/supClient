@@ -12,6 +12,8 @@ public class Booking
 
     public int SvoParticipantsCount { get; set; }
 
+    public bool FullHourlyPricing { get; set; }
+
     public string ClientName { get; set; } = string.Empty;
 
     public string? PhoneNumber { get; set; }

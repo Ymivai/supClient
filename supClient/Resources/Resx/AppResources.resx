@@ -78,6 +78,9 @@
   <data name="Label.SvoParticipantsSelected" xml:space="preserve">
     <value>Участников: {0}</value>
   </data>
+  <data name="Label.FullHourlyPricing" xml:space="preserve">
+    <value>Полная почасовая стоимость</value>
+  </data>
   <data name="Label.Comment" xml:space="preserve">
     <value>Комментарий</value>
   </data>
