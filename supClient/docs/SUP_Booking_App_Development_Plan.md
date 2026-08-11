@@ -979,6 +979,165 @@ Version 1.0 is ready when:
 - All local booking data can be deleted safely from Settings.
 - Core business logic has unit test coverage.
 
+## Post-MVP Refinement Phase
+
+The core offline booking workflow is considered complete enough for the first practical release. The next stage should focus on operational polish and payment accuracy without changing the overall architecture.
+
+These tasks belong to the refinement phase after the base MVP:
+
+### 1. Theme Selection
+
+Goal:
+
+- Add a light/dark theme option in Settings.
+- Persist the selected theme locally.
+- After saving settings, show a clear message such as: `Тема зміниться після перезапуску застосунку`.
+- Do not require the theme to switch live immediately.
+
+Verification:
+
+- Theme choice persists after app restart.
+- User understands that restart is required.
+- Existing Settings save flow remains simple.
+
+### 2. Visual Payment State On Booking Cards
+
+Goal:
+
+- Show payment state through booking card styling.
+- Paid bookings should have a green border.
+- Unpaid bookings should have a contrasting border, for example red or orange.
+- Avoid taking extra space with a separate `Paid / Unpaid` text label when color already communicates the state.
+- Card styling should update immediately after a booking payment status changes.
+
+Verification:
+
+- Paid and unpaid bookings are visually distinguishable at a glance.
+- Editing payment state updates the booking card after save.
+- The UI remains readable in both light and dark themes.
+
+### 3. Availability Check Fix While Editing
+
+Goal:
+
+- When editing an existing booking, do not count that same booking as occupied.
+- Temporarily exclude the edited booking's own SUP count from availability calculations.
+- After changing time, end time, duration, or board count, check overlap against all other bookings.
+- Continue preventing real overbooking.
+
+Example:
+
+- Total SUP count: `8`.
+- All `8` SUP are currently occupied.
+- Admin edits an active booking with `2` SUP.
+- Availability calculation should exclude that booking's own `2` SUP before checking the new edited state.
+
+Verification:
+
+- A booking does not conflict with itself while editing.
+- Moving a booking into a real conflict with other bookings is still blocked.
+- Unit tests cover edit checks with `excludeBookingId`.
+
+### 4. Separate UBD Benefit From Payment Method
+
+Goal:
+
+- `Учасник УБД` must not be treated as a payment method.
+- Store UBD as a separate booking benefit/flag that affects cost.
+- Keep actual payment methods separate:
+  - `готівка`;
+  - `карта`;
+  - `не оплачено`, if unpaid bookings are supported in the current flow.
+- Use the UBD participant count to reduce the payable board count.
+
+Verification:
+
+- UBD can be selected independently from payment method.
+- A booking can be paid by cash/card while also having UBD participants.
+- Revenue calculations use only actual payment methods.
+
+### 5. Split Payment Between Cash And Card
+
+Goal:
+
+- Allow one booking to be paid by both card and cash.
+- Store card amount and cash amount separately.
+- Validate that payment parts match the final booking cost.
+
+Example:
+
+- Total cost: `650 грн`.
+- Card: `400 грн`.
+- Cash: `250 грн`.
+
+Daily statistics:
+
+- Card receives `400 грн`.
+- Cash receives `250 грн`.
+- Total receives `650 грн`.
+
+Verification:
+
+- Split payments persist after app restart.
+- Invalid split totals are blocked or clearly shown.
+- Daily card/cash totals use the split amounts correctly.
+
+### 6. Custom Revenue Rounding
+
+Goal:
+
+- Round final booking cost to the nearest `50 грн`.
+- Use a threshold of `20 грн` from the lower boundary.
+- If the difference from the lower boundary is `20 грн` or less, round down.
+- If the difference is `21 грн` or more, round up.
+
+Examples:
+
+- `412 грн -> 400 грн`
+- `420 грн -> 400 грн`
+- `421 грн -> 450 грн`
+- `468 грн -> 450 грн`
+- `470 грн -> 450 грн`
+- `471 грн -> 500 грн`
+
+Verification:
+
+- Rounding is centralized in a service/helper.
+- Unit tests cover boundary values.
+- All revenue displays use the rounded value.
+
+### 7. Live Price Preview On Create/Edit
+
+Goal:
+
+- Show calculated booking cost before saving.
+- Recalculate automatically when any cost-related input changes:
+  - date;
+  - start time;
+  - end time;
+  - SUP count;
+  - UBD benefit / UBD participant count.
+- Display the final rounded value.
+
+Verification:
+
+- Price preview updates without manual refresh.
+- Preview matches the amount stored after saving.
+- Invalid durations or invalid board counts do not show misleading totals.
+
+### 8. Close Settings After Save
+
+Goal:
+
+- After settings are saved successfully, automatically return the user to the previous/main screen.
+- If theme was changed, show the restart message before closing Settings.
+
+Verification:
+
+- Saving settings returns to the booking screen.
+- If theme changed, the restart message appears.
+- Main booking screen refreshes after settings changes.
+
 ## Future Versions / Phase 2+
 
 Future features should be implemented only after the Version 1.0 offline workflow is stable.
