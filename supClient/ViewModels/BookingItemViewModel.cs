@@ -16,6 +16,9 @@ public class BookingItemViewModel
         PhoneNumber = booking.PhoneNumber ?? string.Empty;
         Comment = booking.Comment ?? string.Empty;
         PaymentMethod = booking.PaymentMethod.ToDisplayName();
+        IsPaid = booking.PaymentMethod is Models.PaymentMethod.Cash or Models.PaymentMethod.Card;
+        PaymentBorderColor = IsPaid ? Color.FromArgb("#2E7D32") : Color.FromArgb("#D84315");
+        PaymentBorderThickness = 2;
         Revenue = CalculateRevenue(booking, hourlyRate);
         TimeDisplay = $"{StartTime:HH:mm}-{EndTime:HH:mm}";
         BoardsDisplay = string.Format(Text("Format.Boards"), BoardsCount);
@@ -41,6 +44,12 @@ public class BookingItemViewModel
 
     public string PaymentMethod { get; }
 
+    public bool IsPaid { get; }
+
+    public Color PaymentBorderColor { get; }
+
+    public double PaymentBorderThickness { get; }
+
     public int Revenue { get; }
 
     public string TimeDisplay { get; }
@@ -55,10 +64,13 @@ public class BookingItemViewModel
     {
         var parts = new List<string>
         {
-            BoardsDisplay,
-            PaymentMethod,
-            string.Format(Text("Format.BookingRevenue"), Revenue)
+            BoardsDisplay
         };
+
+        if (IsPaid)
+            parts.Add(PaymentMethod);
+
+        parts.Add(string.Format(Text("Format.BookingRevenue"), Revenue));
 
         if (SvoParticipantsCount > 0)
             parts.Add(string.Format(Text("Format.SvoParticipants"), SvoParticipantsCount));
