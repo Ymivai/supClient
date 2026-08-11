@@ -123,8 +123,17 @@
   <data name="Label.LocalData" xml:space="preserve">
     <value>Локальные данные</value>
   </data>
+  <data name="Label.Theme" xml:space="preserve">
+    <value>Тема</value>
+  </data>
   <data name="Label.Language" xml:space="preserve">
     <value>Язык</value>
+  </data>
+  <data name="Theme.Light" xml:space="preserve">
+    <value>Светлая</value>
+  </data>
+  <data name="Theme.Dark" xml:space="preserve">
+    <value>Тёмная</value>
   </data>
   <data name="Label.Loading" xml:space="preserve">
     <value>Загрузка...</value>

@@ -991,13 +991,12 @@ Goal:
 
 - Add a light/dark theme option in Settings.
 - Persist the selected theme locally.
-- After saving settings, show a clear message such as: `Тема зміниться після перезапуску застосунку`.
-- Do not require the theme to switch live immediately.
+- Apply the selected theme immediately after saving.
 
 Verification:
 
 - Theme choice persists after app restart.
-- User understands that restart is required.
+- Theme changes are visible without restarting the app.
 - Existing Settings save flow remains simple.
 
 ### 2. Visual Payment State On Booking Cards
@@ -1130,12 +1129,12 @@ Verification:
 Goal:
 
 - After settings are saved successfully, automatically return the user to the previous/main screen.
-- If theme was changed, show the restart message before closing Settings.
+- If theme was changed, apply it immediately before closing Settings.
 
 Verification:
 
 - Saving settings returns to the booking screen.
-- If theme changed, the restart message appears.
+- If theme changed, the new theme is visible immediately.
 - Main booking screen refreshes after settings changes.
 
 ## Future Versions / Phase 2+

@@ -9,4 +9,6 @@ public class AppSettings
     public int WeekdayHourlyRate { get; set; } = 300;
 
     public int WeekendHourlyRate { get; set; } = 350;
+
+    public AppThemePreference Theme { get; set; } = AppThemePreference.Dark;
 }

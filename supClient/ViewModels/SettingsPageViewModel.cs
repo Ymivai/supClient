@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.Logging;
@@ -21,6 +22,7 @@ public class SettingsPageViewModel : ViewModelBase
     int _totalBoards = Defines.DefaultTotalBoards;
     int _weekdayHourlyRate = 300;
     int _weekendHourlyRate = 350;
+    int _selectedThemeIndex;
     string _totalBoardsDisplay = string.Empty;
 
     public SettingsPageViewModel(
@@ -37,9 +39,14 @@ public class SettingsPageViewModel : ViewModelBase
         _logger = logger;
 
         UpdateLocalizedDisplays();
+        ThemeNames = new ObservableCollection<string>();
+        RefreshThemeNames();
+        LocalizedResources.Instance.PropertyChanged += (_, _) => RefreshThemeNames();
         SaveCommand = new Command(async () => await SaveAsync(), CanSave);
         DeleteAllBookingsCommand = new Command(async () => await DeleteAllBookingsAsync());
     }
+
+    public ObservableCollection<string> ThemeNames { get; }
 
     public int TotalBoards
     {
@@ -80,6 +87,16 @@ public class SettingsPageViewModel : ViewModelBase
         }
     }
 
+    public int SelectedThemeIndex
+    {
+        get => _selectedThemeIndex;
+        set
+        {
+            if (SetProperty(ref _selectedThemeIndex, value))
+                (SaveCommand as Command)?.ChangeCanExecute();
+        }
+    }
+
     public ICommand SaveCommand { get; }
 
     public ICommand DeleteAllBookingsCommand { get; }
@@ -97,6 +114,7 @@ public class SettingsPageViewModel : ViewModelBase
             TotalBoards = settings.TotalBoards;
             WeekdayHourlyRate = Math.Max(1, settings.WeekdayHourlyRate);
             WeekendHourlyRate = Math.Max(1, settings.WeekendHourlyRate);
+            SelectedThemeIndex = settings.Theme.ToSelectionIndex();
         }
         catch (Exception ex)
         {
@@ -113,10 +131,12 @@ public class SettingsPageViewModel : ViewModelBase
                 TotalBoards = TotalBoards,
                 DefaultBookingDuration = Defines.DefaultBookingDuration,
                 WeekdayHourlyRate = WeekdayHourlyRate,
-                WeekendHourlyRate = WeekendHourlyRate
+                WeekendHourlyRate = WeekendHourlyRate,
+                Theme = AppThemePreferenceExtensions.FromSelectionIndex(SelectedThemeIndex)
             };
 
             await _settingsService.SaveSettingsAsync(settings);
+            await AppThemeService.ApplyThemeAsync(settings.Theme);
             WeakReferenceMessenger.Default.Send(new SettingsChangedMessage(settings));
 
             await _dialogService.DisplayAlertAsync(Text("Dialog.SavedTitle"), Text("Dialog.SettingsSaved"));
@@ -156,7 +176,20 @@ public class SettingsPageViewModel : ViewModelBase
     bool CanSave()
         => TotalBoards > 0
            && WeekdayHourlyRate > 0
-           && WeekendHourlyRate > 0;
+           && WeekendHourlyRate > 0
+           && SelectedThemeIndex >= 0
+           && SelectedThemeIndex < AppThemePreferenceExtensions.ThemePreferences.Count;
+
+    void RefreshThemeNames()
+    {
+        ThemeNames.Clear();
+        foreach (var theme in AppThemePreferenceExtensions.ThemePreferences)
+        {
+            ThemeNames.Add(theme.ToDisplayName());
+        }
+
+        RaisePropertyChanged(nameof(SelectedThemeIndex));
+    }
 
     void UpdateLocalizedDisplays()
     {

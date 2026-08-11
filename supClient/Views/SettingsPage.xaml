@@ -50,6 +50,15 @@
                 </VerticalStackLayout>
             </Grid>
 
+            <VerticalStackLayout Spacing="8">
+                <Label
+                    FontAttributes="Bold"
+                    Text="{localization:Localization Label.Theme}" />
+                <Picker
+                    ItemsSource="{Binding ThemeNames}"
+                    SelectedIndex="{Binding SelectedThemeIndex}" />
+            </VerticalStackLayout>
+
             <Button
                 Command="{Binding SaveCommand}"
                 Text="{localization:Localization Button.Save}" />
