@@ -35,7 +35,7 @@ public class AddBookingPageViewModel : ViewModelBase
     bool _fullHourlyPricing;
     AppSettings _settings = new();
     bool _isUpdatingPaymentAmounts;
-    int _lastBookingCost;
+    bool _paymentAmountsEditedManually;
     string _pageTitle = Text("Title.NewBooking");
     string _durationDisplay = string.Empty;
     string _boardsCountDisplay = string.Empty;
@@ -176,6 +176,7 @@ public class AddBookingPageViewModel : ViewModelBase
         {
             if (SetProperty(ref _selectedPaymentMethodIndex, value))
             {
+                _paymentAmountsEditedManually = false;
                 NormalizePaymentAmountsForSelectedMethod();
                 UpdatePaymentDisplays();
                 (SaveCommand as Command)?.ChangeCanExecute();
@@ -194,7 +195,10 @@ public class AddBookingPageViewModel : ViewModelBase
             if (SetProperty(ref _cardPaymentAmount, value))
             {
                 if (!_isUpdatingPaymentAmounts)
+                {
+                    _paymentAmountsEditedManually = true;
                     UpdatePaymentDisplays();
+                }
 
                 (SaveCommand as Command)?.ChangeCanExecute();
             }
@@ -209,7 +213,10 @@ public class AddBookingPageViewModel : ViewModelBase
             if (SetProperty(ref _cashPaymentAmount, value))
             {
                 if (!_isUpdatingPaymentAmounts)
+                {
+                    _paymentAmountsEditedManually = true;
                     UpdatePaymentDisplays();
+                }
 
                 (SaveCommand as Command)?.ChangeCanExecute();
             }
@@ -470,81 +477,67 @@ public class AddBookingPageViewModel : ViewModelBase
         var bookingCost = CalculateCurrentBookingTotal();
         AutoAdjustSingleMethodPayment(bookingCost);
         BookingCostDisplay = string.Format(Text("Format.BookingCost"), bookingCost);
-        _lastBookingCost = bookingCost;
         RaisePropertyChanged(nameof(PaymentAmountsVisible));
     }
 
     void AutoAdjustSingleMethodPayment(int bookingCost)
     {
-        if (_isUpdatingPaymentAmounts || SelectedPaymentMethod == PaymentMethod.Unpaid)
+        if (_isUpdatingPaymentAmounts || _paymentAmountsEditedManually || SelectedPaymentMethod == PaymentMethod.Unpaid)
             return;
 
-        var isEmptyPayment = CardPaymentAmount + CashPaymentAmount == 0;
-        var isCardOnlyAutoPayment = SelectedPaymentMethod == PaymentMethod.Card
-                                    && CashPaymentAmount == 0
-                                    && CardPaymentAmount == _lastBookingCost;
-        var isCashOnlyAutoPayment = SelectedPaymentMethod == PaymentMethod.Cash
-                                    && CardPaymentAmount == 0
-                                    && CashPaymentAmount == _lastBookingCost;
-
-        if (!isEmptyPayment && !isCardOnlyAutoPayment && !isCashOnlyAutoPayment)
-            return;
-
-        _isUpdatingPaymentAmounts = true;
-        try
-        {
-            if (SelectedPaymentMethod == PaymentMethod.Card)
-            {
-                CardPaymentAmount = bookingCost;
-                CashPaymentAmount = 0;
-                return;
-            }
-
-            CashPaymentAmount = bookingCost;
-            CardPaymentAmount = 0;
-        }
-        finally
-        {
-            _isUpdatingPaymentAmounts = false;
-        }
+        if (SelectedPaymentMethod == PaymentMethod.Card)
+            SetPaymentAmounts(bookingCost, 0);
+        else
+            SetPaymentAmounts(0, bookingCost);
     }
 
     void NormalizePaymentAmountsForSelectedMethod()
     {
         if (SelectedPaymentMethod == PaymentMethod.Unpaid)
         {
-            CardPaymentAmount = 0;
-            CashPaymentAmount = 0;
+            SetPaymentAmounts(0, 0);
             return;
         }
-
-        if (CardPaymentAmount + CashPaymentAmount > 0)
-            return;
 
         var bookingTotal = CalculateCurrentBookingTotal();
         if (SelectedPaymentMethod == PaymentMethod.Card)
         {
-            CardPaymentAmount = bookingTotal;
-            CashPaymentAmount = 0;
+            SetPaymentAmounts(bookingTotal, 0);
             return;
         }
 
-        CashPaymentAmount = bookingTotal;
-        CardPaymentAmount = 0;
+        SetPaymentAmounts(0, bookingTotal);
     }
 
     void LoadPaymentAmounts(Booking booking)
     {
+        _paymentAmountsEditedManually = false;
+
         if (BookingRevenueCalculator.HasManualPaymentAmounts(booking))
         {
-            CardPaymentAmount = booking.CardPaymentAmount;
-            CashPaymentAmount = booking.CashPaymentAmount;
+            SetPaymentAmounts(booking.CardPaymentAmount, booking.CashPaymentAmount);
+            _paymentAmountsEditedManually = booking.CardPaymentAmount > 0 && booking.CashPaymentAmount > 0;
             return;
         }
 
         var bookingTotal = BookingRevenueCalculator.CalculateBookingTotal(booking, GetHourlyRate(booking.StartTime.Date));
-        CardPaymentAmount = booking.PaymentMethod == PaymentMethod.Card ? bookingTotal : 0;
-        CashPaymentAmount = booking.PaymentMethod == PaymentMethod.Cash ? bookingTotal : 0;
+        SetPaymentAmounts(
+            booking.PaymentMethod == PaymentMethod.Card ? bookingTotal : 0,
+            booking.PaymentMethod == PaymentMethod.Cash ? bookingTotal : 0);
+    }
+
+    void SetPaymentAmounts(int cardAmount, int cashAmount)
+    {
+        _isUpdatingPaymentAmounts = true;
+        try
+        {
+            CardPaymentAmount = cardAmount;
+            CashPaymentAmount = cashAmount;
+        }
+        finally
+        {
+            _isUpdatingPaymentAmounts = false;
+        }
     }
 
     int CalculateCurrentBookingTotal()
