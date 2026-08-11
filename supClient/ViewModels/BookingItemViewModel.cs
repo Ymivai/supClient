@@ -1,5 +1,6 @@
 using supClient.Localization;
 using supClient.Models;
+using supClient.Services;
 
 namespace supClient.ViewModels;
 
@@ -16,10 +17,12 @@ public class BookingItemViewModel
         PhoneNumber = booking.PhoneNumber ?? string.Empty;
         Comment = booking.Comment ?? string.Empty;
         PaymentMethod = booking.PaymentMethod.ToDisplayName();
-        IsPaid = booking.PaymentMethod is Models.PaymentMethod.Cash or Models.PaymentMethod.Card;
+        CardPaymentAmount = BookingRevenueCalculator.GetCardRevenue(booking, hourlyRate);
+        CashPaymentAmount = BookingRevenueCalculator.GetCashRevenue(booking, hourlyRate);
+        IsPaid = CardPaymentAmount + CashPaymentAmount > 0;
         PaymentBorderColor = IsPaid ? Color.FromArgb("#2E7D32") : Color.FromArgb("#D84315");
         PaymentBorderThickness = 2;
-        Revenue = CalculateRevenue(booking, hourlyRate);
+        Revenue = CardPaymentAmount + CashPaymentAmount;
         TimeDisplay = $"{StartTime:HH:mm}-{EndTime:HH:mm}";
         BoardsDisplay = string.Format(Text("Format.Boards"), BoardsCount);
         ClientDisplay = string.IsNullOrWhiteSpace(ClientName) ? Text("Booking.ClientNotSpecified") : ClientName;
@@ -44,6 +47,10 @@ public class BookingItemViewModel
 
     public string PaymentMethod { get; }
 
+    public int CardPaymentAmount { get; }
+
+    public int CashPaymentAmount { get; }
+
     public bool IsPaid { get; }
 
     public Color PaymentBorderColor { get; }
@@ -67,8 +74,15 @@ public class BookingItemViewModel
             BoardsDisplay
         };
 
-        if (IsPaid)
+        if (IsPaid && CardPaymentAmount > 0 && CashPaymentAmount > 0)
+        {
+            parts.Add(string.Format(Text("Format.CardPaidAmount"), CardPaymentAmount));
+            parts.Add(string.Format(Text("Format.CashPaidAmount"), CashPaymentAmount));
+        }
+        else if (IsPaid)
+        {
             parts.Add(PaymentMethod);
+        }
 
         parts.Add(string.Format(Text("Format.BookingRevenue"), Revenue));
 
@@ -82,16 +96,6 @@ public class BookingItemViewModel
             parts.Add(Comment);
 
         return string.Join(" | ", parts);
-    }
-
-    static int CalculateRevenue(Booking booking, int hourlyRate)
-    {
-        if (booking.PaymentMethod is Models.PaymentMethod.Unpaid or Models.PaymentMethod.Transfer or Models.PaymentMethod.Other)
-            return 0;
-
-        var paidBoardsCount = Math.Max(0, booking.BoardsCount - booking.SvoParticipantsCount);
-        var amount = paidBoardsCount * (decimal)booking.Duration.TotalHours * hourlyRate;
-        return (int)Math.Round(amount, MidpointRounding.AwayFromZero);
     }
 
     static string Text(string key)

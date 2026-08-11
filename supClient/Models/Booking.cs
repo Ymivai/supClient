@@ -20,6 +20,10 @@ public class Booking
 
     public PaymentMethod PaymentMethod { get; set; } = PaymentMethod.Unpaid;
 
+    public int CardPaymentAmount { get; set; }
+
+    public int CashPaymentAmount { get; set; }
+
     public BookingStatus Status { get; set; } = BookingStatus.Scheduled;
 
     public DateTime CreatedAt { get; set; } = DateTime.Now;

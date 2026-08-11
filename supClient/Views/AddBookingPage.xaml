@@ -59,6 +59,25 @@
                         SelectedIndex="{Binding SelectedPaymentMethodIndex}" />
             </VerticalStackLayout>
 
+            <VerticalStackLayout Spacing="8"
+                                 IsVisible="{Binding PaymentAmountsVisible}">
+                <Label Text="{Binding BookingCostDisplay}"
+                       FontAttributes="Bold"
+                       HorizontalOptions="Center" />
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                    <VerticalStackLayout Grid.Column="0" Spacing="8">
+                        <Label Text="{localization:Localization Label.CardPaymentAmount}" FontAttributes="Bold" />
+                        <Entry Keyboard="Numeric"
+                               Text="{Binding CardPaymentAmount}" />
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Grid.Column="1" Spacing="8">
+                        <Label Text="{localization:Localization Label.CashPaymentAmount}" FontAttributes="Bold" />
+                        <Entry Keyboard="Numeric"
+                               Text="{Binding CashPaymentAmount}" />
+                    </VerticalStackLayout>
+                </Grid>
+            </VerticalStackLayout>
+
             <VerticalStackLayout Spacing="8">
                 <HorizontalStackLayout Spacing="8">
                     <CheckBox IsChecked="{Binding HasSvoParticipants}" />

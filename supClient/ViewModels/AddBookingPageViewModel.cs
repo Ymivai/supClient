@@ -28,12 +28,18 @@ public class AddBookingPageViewModel : ViewModelBase
     string _phoneNumber = string.Empty;
     string _comment = string.Empty;
     int _selectedPaymentMethodIndex;
+    int _cardPaymentAmount;
+    int _cashPaymentAmount;
     int _svoParticipantsCount;
     bool _hasSvoParticipants;
+    AppSettings _settings = new();
+    bool _isUpdatingPaymentAmounts;
+    int _lastBookingCost;
     string _pageTitle = Text("Title.NewBooking");
     string _durationDisplay = string.Empty;
     string _boardsCountDisplay = string.Empty;
     string _svoParticipantsDisplay = string.Empty;
+    string _bookingCostDisplay = string.Empty;
     bool _isEditing;
 
     public AddBookingPageViewModel(
@@ -79,7 +85,11 @@ public class AddBookingPageViewModel : ViewModelBase
     public DateTime BookingDate
     {
         get => _bookingDate;
-        set => SetProperty(ref _bookingDate, value.Date);
+        set
+        {
+            if (SetProperty(ref _bookingDate, value.Date))
+                UpdatePaymentDisplays();
+        }
     }
 
     public TimeSpan StartTime
@@ -164,8 +174,51 @@ public class AddBookingPageViewModel : ViewModelBase
         set
         {
             if (SetProperty(ref _selectedPaymentMethodIndex, value))
+            {
+                NormalizePaymentAmountsForSelectedMethod();
+                UpdatePaymentDisplays();
                 (SaveCommand as Command)?.ChangeCanExecute();
+            }
         }
+    }
+
+    public bool PaymentAmountsVisible
+        => SelectedPaymentMethod != PaymentMethod.Unpaid;
+
+    public int CardPaymentAmount
+    {
+        get => _cardPaymentAmount;
+        set
+        {
+            if (SetProperty(ref _cardPaymentAmount, value))
+            {
+                if (!_isUpdatingPaymentAmounts)
+                    UpdatePaymentDisplays();
+
+                (SaveCommand as Command)?.ChangeCanExecute();
+            }
+        }
+    }
+
+    public int CashPaymentAmount
+    {
+        get => _cashPaymentAmount;
+        set
+        {
+            if (SetProperty(ref _cashPaymentAmount, value))
+            {
+                if (!_isUpdatingPaymentAmounts)
+                    UpdatePaymentDisplays();
+
+                (SaveCommand as Command)?.ChangeCanExecute();
+            }
+        }
+    }
+
+    public string BookingCostDisplay
+    {
+        get => _bookingCostDisplay;
+        private set => SetProperty(ref _bookingCostDisplay, value);
     }
 
     public int SvoParticipantsCount
@@ -203,6 +256,8 @@ public class AddBookingPageViewModel : ViewModelBase
 
     public override async Task OnNavigatingTo(object? parameter)
     {
+        _settings = await _settingsService.GetSettingsAsync();
+
         if (parameter is Guid bookingId)
         {
             await LoadBookingAsync(bookingId);
@@ -217,8 +272,8 @@ public class AddBookingPageViewModel : ViewModelBase
         if (parameter is DateTime date)
             BookingDate = date.Date;
 
-        var settings = await _settingsService.GetSettingsAsync();
-        EndTime = GetDefaultEndTime(StartTime, settings.DefaultBookingDuration);
+        EndTime = GetDefaultEndTime(StartTime, _settings.DefaultBookingDuration);
+        UpdatePaymentDisplays();
     }
 
     async Task LoadBookingAsync(Guid bookingId)
@@ -245,7 +300,9 @@ public class AddBookingPageViewModel : ViewModelBase
         PhoneNumber = booking.PhoneNumber ?? string.Empty;
         Comment = booking.Comment ?? string.Empty;
         SelectedPaymentMethodIndex = booking.PaymentMethod.ToSelectionIndex();
+        LoadPaymentAmounts(booking);
         UpdateDurationDisplay();
+        UpdatePaymentDisplays();
     }
 
     async Task SaveAsync()
@@ -264,6 +321,8 @@ public class AddBookingPageViewModel : ViewModelBase
                 PhoneNumber = string.IsNullOrWhiteSpace(PhoneNumber) ? null : PhoneNumber.Trim(),
                 Comment = string.IsNullOrWhiteSpace(Comment) ? null : Comment.Trim(),
                 PaymentMethod = PaymentMethodExtensions.FromSelectionIndex(SelectedPaymentMethodIndex),
+                CardPaymentAmount = SelectedPaymentMethod == PaymentMethod.Unpaid ? 0 : CardPaymentAmount,
+                CashPaymentAmount = SelectedPaymentMethod == PaymentMethod.Unpaid ? 0 : CashPaymentAmount,
                 CreatedAt = now,
                 UpdatedAt = now
             };
@@ -353,12 +412,14 @@ public class AddBookingPageViewModel : ViewModelBase
         if (duration <= TimeSpan.Zero)
         {
             DurationDisplay = Text("Validation.EndAfterStart");
+            UpdatePaymentDisplays();
             return;
         }
 
         DurationDisplay = duration.Hours > 0
             ? string.Format(Text("Format.DurationHoursMinutes"), duration.Hours, duration.Minutes)
             : string.Format(Text("Format.DurationMinutes"), duration.Minutes);
+        UpdatePaymentDisplays();
     }
 
     void RefreshLocalizedTexts()
@@ -367,6 +428,7 @@ public class AddBookingPageViewModel : ViewModelBase
         PageTitle = IsEditing ? Text("Title.EditBooking") : Text("Title.NewBooking");
         UpdateDurationDisplay();
         UpdateCountDisplays();
+        UpdatePaymentDisplays();
     }
 
     void RefreshPaymentMethodNames()
@@ -384,7 +446,110 @@ public class AddBookingPageViewModel : ViewModelBase
     {
         BoardsCountDisplay = string.Format(Text("Label.SelectedBoards"), BoardsCount);
         SvoParticipantsDisplay = string.Format(Text("Label.SvoParticipantsSelected"), SvoParticipantsCount);
+        UpdatePaymentDisplays();
     }
+
+    void UpdatePaymentDisplays()
+    {
+        var bookingCost = CalculateCurrentBookingTotal();
+        AutoAdjustSingleMethodPayment(bookingCost);
+        BookingCostDisplay = string.Format(Text("Format.BookingCost"), bookingCost);
+        _lastBookingCost = bookingCost;
+        RaisePropertyChanged(nameof(PaymentAmountsVisible));
+    }
+
+    void AutoAdjustSingleMethodPayment(int bookingCost)
+    {
+        if (_isUpdatingPaymentAmounts || SelectedPaymentMethod == PaymentMethod.Unpaid)
+            return;
+
+        var isEmptyPayment = CardPaymentAmount + CashPaymentAmount == 0;
+        var isCardOnlyAutoPayment = SelectedPaymentMethod == PaymentMethod.Card
+                                    && CashPaymentAmount == 0
+                                    && CardPaymentAmount == _lastBookingCost;
+        var isCashOnlyAutoPayment = SelectedPaymentMethod == PaymentMethod.Cash
+                                    && CardPaymentAmount == 0
+                                    && CashPaymentAmount == _lastBookingCost;
+
+        if (!isEmptyPayment && !isCardOnlyAutoPayment && !isCashOnlyAutoPayment)
+            return;
+
+        _isUpdatingPaymentAmounts = true;
+        try
+        {
+            if (SelectedPaymentMethod == PaymentMethod.Card)
+            {
+                CardPaymentAmount = bookingCost;
+                CashPaymentAmount = 0;
+                return;
+            }
+
+            CashPaymentAmount = bookingCost;
+            CardPaymentAmount = 0;
+        }
+        finally
+        {
+            _isUpdatingPaymentAmounts = false;
+        }
+    }
+
+    void NormalizePaymentAmountsForSelectedMethod()
+    {
+        if (SelectedPaymentMethod == PaymentMethod.Unpaid)
+        {
+            CardPaymentAmount = 0;
+            CashPaymentAmount = 0;
+            return;
+        }
+
+        if (CardPaymentAmount + CashPaymentAmount > 0)
+            return;
+
+        var bookingTotal = CalculateCurrentBookingTotal();
+        if (SelectedPaymentMethod == PaymentMethod.Card)
+        {
+            CardPaymentAmount = bookingTotal;
+            CashPaymentAmount = 0;
+            return;
+        }
+
+        CashPaymentAmount = bookingTotal;
+        CardPaymentAmount = 0;
+    }
+
+    void LoadPaymentAmounts(Booking booking)
+    {
+        if (BookingRevenueCalculator.HasManualPaymentAmounts(booking))
+        {
+            CardPaymentAmount = booking.CardPaymentAmount;
+            CashPaymentAmount = booking.CashPaymentAmount;
+            return;
+        }
+
+        var bookingTotal = BookingRevenueCalculator.CalculateBookingTotal(booking, GetHourlyRate(booking.StartTime.Date));
+        CardPaymentAmount = booking.PaymentMethod == PaymentMethod.Card ? bookingTotal : 0;
+        CashPaymentAmount = booking.PaymentMethod == PaymentMethod.Cash ? bookingTotal : 0;
+    }
+
+    int CalculateCurrentBookingTotal()
+    {
+        var booking = new Booking
+        {
+            StartTime = BookingDate.Date.Add(StartTime),
+            Duration = GetDuration(),
+            BoardsCount = BoardsCount,
+            SvoParticipantsCount = HasSvoParticipants ? SvoParticipantsCount : 0
+        };
+
+        return booking.Duration > TimeSpan.Zero
+            ? BookingRevenueCalculator.CalculateBookingTotal(booking, GetHourlyRate(booking.StartTime.Date))
+            : 0;
+    }
+
+    int GetHourlyRate(DateTime date)
+        => date.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday
+            ? _settings.WeekendHourlyRate
+            : _settings.WeekdayHourlyRate;
 
     async Task NavigateBackAfterSuccessfulChangeAsync()
     {

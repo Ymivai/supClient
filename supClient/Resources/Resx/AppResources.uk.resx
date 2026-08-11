@@ -63,6 +63,12 @@
   <data name="Label.PaymentMethod" xml:space="preserve">
     <value>Спосіб оплати</value>
   </data>
+  <data name="Label.CardPaymentAmount" xml:space="preserve">
+    <value>Карта, грн</value>
+  </data>
+  <data name="Label.CashPaymentAmount" xml:space="preserve">
+    <value>Готівка, грн</value>
+  </data>
   <data name="Label.HasSvoParticipants" xml:space="preserve">
     <value>Є учасники УБД</value>
   </data>
@@ -162,6 +168,15 @@
   <data name="Format.BookingRevenue" xml:space="preserve">
     <value>{0} грн</value>
   </data>
+  <data name="Format.BookingCost" xml:space="preserve">
+    <value>До оплати: {0} грн</value>
+  </data>
+  <data name="Format.CardPaidAmount" xml:space="preserve">
+    <value>картка: {0} грн</value>
+  </data>
+  <data name="Format.CashPaidAmount" xml:space="preserve">
+    <value>готівка: {0} грн</value>
+  </data>
   <data name="Format.SvoParticipants" xml:space="preserve">
     <value>учасників УБД: {0}</value>
   </data>
@@ -239,6 +254,12 @@
   </data>
   <data name="Validation.CustomerNameRequired" xml:space="preserve">
     <value>Ім'я клієнта обов'язкове.</value>
+  </data>
+  <data name="Validation.PaymentAmountInvalid" xml:space="preserve">
+    <value>Суми оплати не можуть бути меншими за нуль.</value>
+  </data>
+  <data name="Validation.PaymentSplitMismatch" xml:space="preserve">
+    <value>Сума оплати картою і готівкою має дорівнювати {0} грн.</value>
   </data>
   <data name="Availability.TotalBoardsInvalid" xml:space="preserve">
     <value>Кількість SUP-дощок у налаштуваннях має бути більшою за нуль.</value>

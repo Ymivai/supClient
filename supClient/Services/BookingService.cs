@@ -41,12 +41,8 @@ public class BookingService : IBookingService
             .Sum(b => b.BoardsCount);
         var availableBoards = Math.Max(0, settings.TotalBoards - occupiedBoards);
         var hourlyRate = GetHourlyRate(date, settings);
-        var cardRevenue = bookings
-            .Where(b => b.PaymentMethod == PaymentMethod.Card)
-            .Sum(b => CalculateBookingRevenue(b, hourlyRate));
-        var cashRevenue = bookings
-            .Where(b => b.PaymentMethod == PaymentMethod.Cash)
-            .Sum(b => CalculateBookingRevenue(b, hourlyRate));
+        var cardRevenue = bookings.Sum(b => BookingRevenueCalculator.GetCardRevenue(b, hourlyRate));
+        var cashRevenue = bookings.Sum(b => BookingRevenueCalculator.GetCashRevenue(b, hourlyRate));
         var totalRevenue = cardRevenue + cashRevenue;
 
         return new BoardUsageResult
@@ -65,7 +61,8 @@ public class BookingService : IBookingService
 
     public async Task<BookingSaveResult> CreateBookingAsync(Booking booking)
     {
-        var validationError = ValidateBooking(booking);
+        var settings = await _settingsService.GetSettingsAsync();
+        var validationError = ValidateBooking(booking, settings);
         if (!string.IsNullOrWhiteSpace(validationError))
             return BookingSaveResult.Failure(validationError);
 
@@ -87,7 +84,8 @@ public class BookingService : IBookingService
 
     public async Task<BookingSaveResult> UpdateBookingAsync(Booking booking)
     {
-        var validationError = ValidateBooking(booking);
+        var settings = await _settingsService.GetSettingsAsync();
+        var validationError = ValidateBooking(booking, settings);
         if (!string.IsNullOrWhiteSpace(validationError))
             return BookingSaveResult.Failure(validationError);
 
@@ -115,7 +113,7 @@ public class BookingService : IBookingService
     public Task DeleteBookingAsync(Guid id)
         => _bookingRepository.DeleteBookingAsync(id);
 
-    static string ValidateBooking(Booking booking)
+    static string ValidateBooking(Booking booking, AppSettings settings)
     {
         if (booking.StartTime == default)
             return Text("Validation.StartTimeRequired");
@@ -132,6 +130,23 @@ public class BookingService : IBookingService
         if (string.IsNullOrWhiteSpace(booking.ClientName))
             return Text("Validation.CustomerNameRequired");
 
+        if (booking.CardPaymentAmount < 0 || booking.CashPaymentAmount < 0)
+            return Text("Validation.PaymentAmountInvalid");
+
+        var paymentTotal = booking.CardPaymentAmount + booking.CashPaymentAmount;
+        if (booking.PaymentMethod == PaymentMethod.Unpaid)
+        {
+            if (paymentTotal != 0)
+                return string.Format(Text("Validation.PaymentSplitMismatch"), 0);
+
+            return string.Empty;
+        }
+
+        var hourlyRate = GetHourlyRate(booking.StartTime.Date, settings);
+        var bookingTotal = BookingRevenueCalculator.CalculateBookingTotal(booking, hourlyRate);
+        if (paymentTotal != bookingTotal)
+            return string.Format(Text("Validation.PaymentSplitMismatch"), bookingTotal);
+
         return string.Empty;
     }
 
@@ -142,16 +157,6 @@ public class BookingService : IBookingService
 
     static bool IsWeekend(DateTime date)
         => date.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday;
-
-    static int CalculateBookingRevenue(Booking booking, int hourlyRate)
-    {
-        if (booking.PaymentMethod is PaymentMethod.Unpaid or PaymentMethod.Transfer or PaymentMethod.Other)
-            return 0;
-
-        var paidBoardsCount = Math.Max(0, booking.BoardsCount - booking.SvoParticipantsCount);
-        var amount = paidBoardsCount * (decimal)booking.Duration.TotalHours * hourlyRate;
-        return (int)Math.Round(amount, MidpointRounding.AwayFromZero);
-    }
 
     static int CalculateAdminRevenue(int totalRevenue)
         => (int)Math.Round(totalRevenue * 0.2m, MidpointRounding.AwayFromZero);

@@ -1057,6 +1057,8 @@ Verification:
 
 ### 5. Split Payment Between Cash And Card
 
+Status: Implemented.
+
 Goal:
 
 - Allow one booking to be paid by both card and cash.
