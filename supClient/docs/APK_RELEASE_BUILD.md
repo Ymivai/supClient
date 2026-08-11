@@ -48,6 +48,7 @@ SportUrbanPoint-SuP-v1.0.apk
 ```
 
 The `v1.0` part comes from `ApplicationDisplayVersion` in the project publish settings.
+For example, `ApplicationDisplayVersion` `1.0.2` creates `SportUrbanPoint-SuP-v1.0.2.apk`.
 
 Install/share the friendly APK from that `publish` folder.
 

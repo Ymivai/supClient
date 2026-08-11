@@ -26,7 +26,6 @@
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Release|net9.0-android'">
 		<AndroidPackageFormat>apk</AndroidPackageFormat>
 		<AndroidCreatePackagePerAbi>false</AndroidCreatePackagePerAbi>
-		<AndroidFriendlyApkName>SportUrbanPoint-SuP-v$(ApplicationDisplayVersion).apk</AndroidFriendlyApkName>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Release|net9.0-android' and '$(SUP_ANDROID_KEYSTORE)' != ''">
@@ -87,8 +86,8 @@
 	</ItemGroup>
 
 	<Target Name="CopyFriendlyAndroidApk" AfterTargets="Publish" Condition="'$(Configuration)|$(TargetFramework)'=='Release|net9.0-android' and Exists('$(PublishDir)$(ApplicationId)-Signed.apk')">
-		<Copy SourceFiles="$(PublishDir)$(ApplicationId)-Signed.apk" DestinationFiles="$(PublishDir)$(AndroidFriendlyApkName)" SkipUnchangedFiles="true" />
-		<Message Importance="High" Text="Friendly Android APK: $(PublishDir)$(AndroidFriendlyApkName)" />
+		<Copy SourceFiles="$(PublishDir)$(ApplicationId)-Signed.apk" DestinationFiles="$(PublishDir)SportUrbanPoint-SuP-v$(ApplicationDisplayVersion).apk" SkipUnchangedFiles="true" />
+		<Message Importance="High" Text="Friendly Android APK: $(PublishDir)SportUrbanPoint-SuP-v$(ApplicationDisplayVersion).apk" />
 	</Target>
 
 </Project>
