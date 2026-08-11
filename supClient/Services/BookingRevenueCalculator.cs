@@ -9,17 +9,21 @@ public static class BookingRevenueCalculator
 
     public static int CalculateBookingTotal(Booking booking, int hourlyRate)
     {
-        var paidBoardsCount = booking.FullHourlyPricing
-            ? booking.BoardsCount
-            : Math.Max(0, booking.BoardsCount - booking.SvoParticipantsCount);
         var hours = booking.FullHourlyPricing
             ? Math.Ceiling(booking.Duration.TotalHours)
             : booking.Duration.TotalHours;
-        var amount = paidBoardsCount * (decimal)hours * hourlyRate;
+        var amount = booking.BoardsCount * (decimal)hours * hourlyRate;
+
+        if (!booking.FullHourlyPricing)
+            amount -= CalculateSvoDiscount(booking, hourlyRate);
+
         var rawAmount = (int)Math.Round(amount, MidpointRounding.AwayFromZero);
 
         return RoundBookingTotal(rawAmount);
     }
+
+    static int CalculateSvoDiscount(Booking booking, int hourlyRate)
+        => Math.Max(0, booking.SvoParticipantsCount) * hourlyRate;
 
     public static int RoundBookingTotal(int amount)
     {

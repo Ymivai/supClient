@@ -1047,7 +1047,7 @@ Goal:
   - `готівка`;
   - `карта`;
   - `не оплачено`, if unpaid bookings are supported in the current flow.
-- Use the UBD participant count to reduce the payable board count.
+- Use the UBD participant count as a one-hour discount per participant.
 
 Verification:
 
